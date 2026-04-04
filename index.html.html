@@ -17,9 +17,72 @@
   --red:#c0392b;--red-l:#fadbd8;
   --border:#e5e7eb;--border2:#d1d5db;--bg:#f4f6f9;
   --text:#111827;--text2:#6b7280;--text3:#9ca3af;
+  --card-bg:#ffffff;--topbar-bg:#ffffff;--input-bg:#fafbfc;
   --r:8px;--r2:12px;--sidebar:224px;
 }
-body{font-family:'Sarabun',sans-serif;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh}
+body.dark{
+  --green:#2ecc71;--green-l:#0d2b1a;--green-m:#1a5c38;--green-d:#27ae60;
+  --blue:#5dade2;--blue-l:#0d1f2d;--blue-d:#85c1e9;
+  --orange:#f39c12;--orange-d:#e67e22;
+  --red:#e74c3c;--red-l:#2d0f0f;
+  --border:#2d3748;--border2:#374151;--bg:#0f1117;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --card-bg:#1a1f2e;--topbar-bg:#141824;--input-bg:#1e2535;
+}
+body{font-family:'Sarabun',sans-serif;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;transition:background .25s,color .25s}
+
+/* ══ DARK MODE OVERRIDES ══ */
+body.dark .login-card{background:#1a1f2e;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+body.dark .card,body.dark .stat-card,body.dark .prog-card,body.dark .chart-card,body.dark .eval-section,body.dark .t-stat-card,body.dark .ev-status-card{background:var(--card-bg);border-color:var(--border)}
+body.dark .topbar{background:var(--topbar-bg);border-color:var(--border)}
+body.dark .tbl thead tr{background:#1e2535}
+body.dark .tbl tbody tr:hover{background:#1e2535}
+body.dark .tbl tbody tr:last-child{border-color:var(--border)}
+body.dark .tbl td,body.dark .tbl th{border-color:var(--border)}
+body.dark .toolbar{background:var(--card-bg);border-color:var(--border)}
+body.dark .search-box input,body.dark .sel,body.dark .fc,body.dark .fbtn{background:var(--input-bg);border-color:var(--border2);color:var(--text)}
+body.dark .search-box input:focus,body.dark .fc:focus{background:#232b3e}
+body.dark .btn-ghost{background:#1e2535;color:var(--text2);border-color:var(--border2)}
+body.dark .q-btn{background:#1e2535;color:var(--blue-d)}
+body.dark .q-btn.green{background:#0d2b1a;color:var(--green)}
+body.dark .modal{background:#1a1f2e}
+body.dark .modal-head{border-color:var(--border)}
+body.dark .modal-body{background:#1a1f2e}
+body.dark .modal-grade-bar{background:#141824;border-color:var(--border)}
+body.dark .crit-section{background:#1e2535}
+body.dark .crit-sec-head{background:#232b3e;border-color:var(--border)}
+body.dark .score-sum{background:#0d2b1a;border-color:var(--green-m)}
+body.dark .ev-s-title{color:var(--text2)}
+body.dark .ev-row{border-color:var(--border)}
+body.dark .docs-preview{background:#0d1f2d;border-color:var(--blue-l)}
+body.dark .doc-preview-item{background:#141824;border-color:var(--border)}
+body.dark .add-doc-area{background:#1e2535;border-color:#374151}
+body.dark .eval-sec-header{background:#1e2535;border-color:var(--border)}
+body.dark .notif-item{border-color:var(--border)}
+body.dark .notif-item:hover{background:#1e2535}
+body.dark .notif-item.unread{background:#0d1f2d}
+body.dark .form-card{background:var(--card-bg)}
+body.dark .data-tbl thead tr{background:#1a3a5c}
+body.dark .data-tbl tbody tr:hover{background:#0d1f2d}
+body.dark .doc-tbl thead tr{background:#1a3a5c}
+body.dark .doc-tbl td{border-color:var(--border)}
+body.dark .doc-tbl tbody tr:nth-child(even){background:#1e2535}
+body.dark .doc-tbl tbody tr:hover{background:#0d1f2d}
+body.dark .card-head{border-color:var(--border);background:var(--card-bg)}
+body.dark .tab-btn{background:#1e2535;border-color:var(--border2);color:var(--text2)}
+body.dark .prog-bar-bg{background:#1e2535}
+body.dark .score-bar-bg{background:#1e2535}
+body.dark .upload-bar-bg{background:#1e2535}
+body.dark input[type="radio"]{accent-color:var(--green)}
+body.dark label[style*="background:#fff"]{background:var(--input-bg)!important}
+body.dark .badge-year{background:#0d2b1a;color:var(--green);border-color:var(--green-m)}
+
+/* ══ DARK TOGGLE BUTTON ══ */
+.dark-toggle{width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;position:relative;transition:background .25s;flex-shrink:0;background:#d1d5db}
+.dark-toggle.on{background:#1a5c38}
+.dark-toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.dark-toggle.on::after{transform:translateX(16px)}
+.dark-toggle-wrap{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2)}
 
 /* ══ LOGIN ══ */
 #loginPage{display:flex;min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f3d26,#1a5c38 50%,#2d8a5e)}
@@ -412,6 +475,10 @@ textarea.fc{resize:vertical;min-height:70px}
       <div class="tb-right">
         <span class="badge-year">ปีประเมิน 2569</span>
         <span style="font-size:11px;color:var(--text3);display:flex;align-items:center"><span class="sync-dot"></span>Real-time</span>
+        <div class="dark-toggle-wrap" title="โหมดมืด/สว่าง">
+          <span id="darkIcon">☀️</span>
+          <button class="dark-toggle" id="darkToggle" onclick="toggleDark()"></button>
+        </div>
       </div>
     </div>
 
@@ -571,10 +638,119 @@ textarea.fc{resize:vertical;min-height:70px}
         </div>
       </div>
 
+      <!-- ════ ADMIN MANAGE PAGE ════ -->
+      <div class="page" id="page-admin-manage">
+        <div class="page-header">
+          <div><h2>⚙️ จัดการระบบ</h2><p>เพิ่ม/ลบ/แก้ไข หัวหลัก หัวย่อย คะแนน และข้อมูลครู</p></div>
+        </div>
+
+        <!-- แท็บ -->
+        <div class="tab-nav" id="manageTabNav" style="margin-bottom:16px">
+          <button class="tab-btn active" onclick="switchManageTab('categories')">📂 หัวหลัก/หัวย่อย</button>
+          <button class="tab-btn" onclick="switchManageTab('criteria')">📊 เกณฑ์คะแนน</button>
+          <button class="tab-btn" onclick="switchManageTab('teachers')">👥 ข้อมูลครู</button>
+        </div>
+
+        <!-- แท็บ: หัวหลัก/หัวย่อย -->
+        <div class="tab-content active" id="mtab-categories">
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-head"><span>📂 หัวหลัก (DOC_CATEGORIES)</span>
+              <button class="btn btn-green btn-sm" onclick="openAddCatModal()">+ เพิ่มหัวหลัก</button>
+            </div>
+            <div id="manageCatList" style="padding:0"></div>
+          </div>
+        </div>
+
+        <!-- แท็บ: เกณฑ์คะแนน -->
+        <div class="tab-content" id="mtab-criteria">
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-head"><span>📊 เกณฑ์การประเมิน (CRITERIA)</span>
+              <button class="btn btn-green btn-sm" onclick="openAddCriteriaModal()">+ เพิ่มหัวข้อ</button>
+            </div>
+            <div id="manageCriteriaList" style="padding:0"></div>
+          </div>
+        </div>
+
+        <!-- แท็บ: ข้อมูลครู -->
+        <div class="tab-content" id="mtab-teachers">
+          <div class="card">
+            <div class="card-head"><span>👥 รายชื่อครู</span>
+              <button class="btn btn-green btn-sm" onclick="openAddTeacherModal()">+ เพิ่มครู</button>
+            </div>
+            <div id="manageTeacherList" style="padding:0"></div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /main -->
   </div><!-- /content -->
 </div><!-- /layout -->
 </div><!-- /appPage -->
+
+<!-- ════ MANAGE MODALS ════ -->
+<!-- Modal: เพิ่ม/แก้ไข หัวหลัก -->
+<div class="modal-overlay" id="catModalOverlay">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head"><div><h2 id="catModalTitle">เพิ่มหัวหลัก</h2></div><button class="modal-close" onclick="closeCatModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grp"><label>รหัส (code)</label><input type="text" id="catCode" class="fc" placeholder="เช่น 1, 2, activity"></div>
+      <div class="form-grp" style="margin-top:10px"><label>ชื่อหัวหลัก</label><input type="text" id="catName" class="fc" placeholder="เช่น ด้านที่ 1 ด้านการจัดการเรียนรู้"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeCatModal()">ยกเลิก</button>
+      <button class="btn-save-eval" onclick="saveCatModal()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: เพิ่ม/แก้ไข หัวย่อย -->
+<div class="modal-overlay" id="itemModalOverlay">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head"><div><h2 id="itemModalTitle">เพิ่มหัวย่อย</h2></div><button class="modal-close" onclick="closeItemModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grp"><label>อยู่ใน</label><select id="itemCatCode" class="fc sel"></select></div>
+      <div class="form-grp" style="margin-top:10px"><label>รหัสย่อย (code)</label><input type="text" id="itemCode" class="fc" placeholder="เช่น 1.1, A.1"></div>
+      <div class="form-grp" style="margin-top:10px"><label>ชื่อหัวย่อย</label><input type="text" id="itemName" class="fc" placeholder="ชื่อหัวข้อ"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeItemModal()">ยกเลิก</button>
+      <button class="btn-save-eval" onclick="saveItemModal()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: เพิ่ม/แก้ไข เกณฑ์คะแนน -->
+<div class="modal-overlay" id="criteriaModalOverlay">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head"><div><h2 id="criteriaModalTitle">เพิ่มหัวข้อเกณฑ์</h2></div><button class="modal-close" onclick="closeCriteriaModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grp"><label>อยู่ใน Section</label><select id="critSectionIdx" class="fc sel"></select></div>
+      <div class="form-grp" style="margin-top:10px"><label>ชื่อหัวข้อ</label><input type="text" id="critName" class="fc" placeholder="เช่น 1.1 สร้างและหรือพัฒนาหลักสูตร"></div>
+      <div class="form-grp" style="margin-top:10px"><label>คำอธิบาย</label><textarea id="critDesc" class="fc" rows="2" style="resize:vertical"></textarea></div>
+      <div class="form-grp" style="margin-top:10px"><label>คะแนนสูงสุด (maxScore ไม่เกิน 4)</label><input type="number" id="critMax" class="fc" min="1" max="4" value="4"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeCriteriaModal()">ยกเลิก</button>
+      <button class="btn-save-eval" onclick="saveCriteriaModal()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: เพิ่ม/แก้ไข ครู -->
+<div class="modal-overlay" id="teacherModalOverlay">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head"><div><h2 id="teacherModalTitle">เพิ่มครู</h2></div><button class="modal-close" onclick="closeTeacherModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grp"><label>ชื่อ-นามสกุล</label><input type="text" id="tName" class="fc" placeholder="เช่น นางสาวสมใจ ใจดี"></div>
+      <div class="form-grp" style="margin-top:10px"><label>แผนกวิชา</label><input type="text" id="tDept" class="fc" placeholder="เช่น แผนกวิชาคณิตศาสตร์ศิลป์"></div>
+      <div class="form-grp" style="margin-top:10px"><label>รหัสผ่านเริ่มต้น</label><input type="text" id="tPass" class="fc" value="1234"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeTeacherModal()">ยกเลิก</button>
+      <button class="btn-save-eval" onclick="saveTeacherModal()">บันทึก</button>
+    </div>
+  </div>
+</div>
 
 <!-- ════ EVAL MODAL ════ -->
 <div class="modal-overlay" id="modalOverlay">
@@ -601,6 +777,12 @@ textarea.fc{resize:vertical;min-height:70px}
       <div class="ev-summary" id="evSummary"></div>
       <div class="formula-note">📐 <strong>สูตร:</strong> ระดับที่ได้ (1–4) × คะแนนสูงสุดของหัวข้อ ÷ 4 = คะแนนที่ได้ &nbsp;|&nbsp; <strong>รวม 100 คะแนน | เกณฑ์ผ่าน ≥ 70%</strong><br>
       ระดับ 1 = ต่ำกว่าระดับที่คาดหวังมาก &nbsp;|&nbsp; 2 = ต่ำกว่าระดับที่คาดหวัง &nbsp;|&nbsp; 3 = ตามระดับที่คาดหวัง &nbsp;|&nbsp; 4 = สูงกว่าระดับที่คาดหวัง</div>
+      <!-- Quick Score (เฉพาะผู้ประเมิน) -->
+      <div id="quickScoreSection" style="background:linear-gradient(135deg,#e8f5ed,#d6eaf8);border:1px solid var(--green-m);border-radius:10px;padding:14px 18px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:var(--green-d);margin-bottom:10px">⚡ ให้คะแนนรวดเร็ว — เลือกระดับคะแนนรวม แล้วระบบจะเฉลี่ยแต่ละข้อให้อัตโนมัติ</div>
+        <div id="quickScoreBtns" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"></div>
+        <div id="quickScoreMsg" style="font-size:11px;color:var(--text2);margin-top:8px;display:none"></div>
+      </div>
       <div id="critContainer"></div>
       <div class="summary-box">
         <div class="sum-row">
@@ -622,31 +804,123 @@ textarea.fc{resize:vertical;min-height:70px}
 
 <div class="toast" id="toast"></div>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<!-- firebase-storage-compat ไม่ได้ใช้แล้ว (ใช้ Realtime DB แทน) -->
-
 <script>
 // ════════════════════════════════════════════
-// 🔧 FIREBASE CONFIG
+// 🗄️ LOCAL STORAGE DATABASE (แทน Firebase)
 // ════════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyDaVQgRi953ZcDEkLsml0lSc94OHtgisDk",
-  authDomain: "ra-cvc2569.firebaseapp.com",
-  databaseURL: "https://ra-cvc2569-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "ra-cvc2569",
-  storageBucket: "ra-cvc2569.firebasestorage.app",
-  messagingSenderId: "459346845411",
-  appId: "1:459346845411:web:f95a39705fa61eeb6a2fd6",
-  measurementId: "G-BEW0TLLTM4"
-};
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-// Firebase Storage ไม่ได้ใช้ (บันทึก Base64 ลง Realtime DB แทน)
-const evalRef  = database.ref('evalData');
-const docsRef  = database.ref('teacherDocs');
-const notifRef = database.ref('notifications');
+const LS_EVAL  = 'ra_cvc2569_evalData';
+const LS_DOCS  = 'ra_cvc2569_teacherDocs';
+const LS_NOTIF = 'ra_cvc2569_notifications';
+
+function lsGet(key){ try{ return JSON.parse(localStorage.getItem(key)||'null'); }catch(e){ return null; } }
+function lsSet(key,val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){ console.error('localStorage full?',e); } }
+
+// ── LS ref mock ── ให้ใช้ API เดิมได้เลย (on / once / child / push / set / update / remove)
+function makeRef(lsKey, path){
+  path = path||'';
+  const self = {
+    _key: lsKey,
+    _path: path,
+    _listeners: [],
+
+    child(sub){ return makeRef(lsKey, path ? path+'/'+sub : sub); },
+
+    _getData(){
+      let data = lsGet(lsKey)||{};
+      if(!path) return data;
+      const parts = path.split('/');
+      for(const p of parts){ if(data==null||typeof data!=='object') return null; data=data[p]; }
+      return data!=null ? data : null;
+    },
+    _setData(val){
+      let root = lsGet(lsKey)||{};
+      if(!path){ lsSet(lsKey,val); return; }
+      const parts = path.split('/');
+      let cur = root;
+      for(let i=0;i<parts.length-1;i++){
+        if(cur[parts[i]]==null||typeof cur[parts[i]]!=='object') cur[parts[i]]={};
+        cur=cur[parts[i]];
+      }
+      cur[parts[parts.length-1]] = val;
+      lsSet(lsKey, root);
+    },
+    _delData(){
+      if(!path){ lsSet(lsKey,{}); return; }
+      let root = lsGet(lsKey)||{};
+      const parts = path.split('/');
+      let cur = root;
+      for(let i=0;i<parts.length-1;i++){
+        if(cur[parts[i]]==null) return;
+        cur=cur[parts[i]];
+      }
+      delete cur[parts[parts.length-1]];
+      lsSet(lsKey, root);
+    },
+
+    on(event, cb){
+      const snap = { val:()=>this._getData() };
+      try{ cb(snap); }catch(e){ console.error(e); }
+      // store so off() can noop
+      this._listeners.push(cb);
+      return this;
+    },
+    off(){ this._listeners=[]; },
+
+    once(event){
+      return Promise.resolve({ val:()=>this._getData() });
+    },
+
+    set(val){
+      this._setData(val);
+      _notifyListeners(lsKey);
+      return Promise.resolve();
+    },
+
+    update(updates){
+      let cur = this._getData()||{};
+      Object.keys(updates).forEach(k=>{
+        // support nested "a/b" keys
+        const parts=k.split('/');
+        let obj=cur;
+        for(let i=0;i<parts.length-1;i++){
+          if(obj[parts[i]]==null||typeof obj[parts[i]]!=='object') obj[parts[i]]={};
+          obj=obj[parts[i]];
+        }
+        obj[parts[parts.length-1]]=updates[k];
+      });
+      this._setData(cur);
+      _notifyListeners(lsKey);
+      return Promise.resolve();
+    },
+
+    push(val){
+      const newKey = 'ls_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+      const child = this.child(newKey);
+      child.set(val);
+      return Promise.resolve({ key: newKey });
+    },
+
+    remove(){
+      this._delData();
+      _notifyListeners(lsKey);
+      return Promise.resolve();
+    },
+
+    orderByChild(){ return this; },
+    limitToLast(){ return this; },
+  };
+  return self;
+}
+
+// global listener registry (เพื่อ simulate realtime)
+const _lsListeners = {};
+function _notifyListeners(lsKey){
+  (_lsListeners[lsKey]||[]).forEach(fn=>{ try{fn();}catch(e){} });
+}
+
+const evalRef  = makeRef(LS_EVAL);
+const docsRef  = makeRef(LS_DOCS);
+const notifRef = makeRef(LS_NOTIF);
 
 // ════ DATA ════
 var TEACHERS = [
@@ -863,18 +1137,20 @@ function doLogin(){
       startNotifListener();
       showTeacherPage('home');
       // Teacher listens to their own eval data
-      evalRef.on('value',snap=>{
-        const raw=snap.val()||{};
+      const evalRefresh=()=>{
+        const raw=lsGet(LS_EVAL)||{};
         const conv={};
         Object.keys(raw).forEach(k=>{conv[parseInt(k)]=raw[k];});
         evalData=conv;
         const pg=document.getElementById('page-teacher-home');
         if(pg&&pg.classList.contains('active')) renderTeacherDashboard();
-      });
+      };
+      evalRefresh();
+      if(!_lsListeners[LS_EVAL]) _lsListeners[LS_EVAL]=[];
+      _lsListeners[LS_EVAL].push(evalRefresh);
     } else {
-      startEvalListener();
-      startAllDocsListener();
       if(usr.type!=='admin') startNotifListener();
+      init();
       showAdminPage('home');
     }
     btn.innerHTML='เข้าสู่ระบบ';
@@ -886,9 +1162,9 @@ function doLogin(){
 }
 
 function doLogout(){
-  try{evalRef.off();}catch(e){}
-  try{docsRef.off();}catch(e){}
-  try{notifRef.off();}catch(e){}
+  _lsListeners[LS_EVAL]=[];
+  _lsListeners[LS_DOCS]=[];
+  _lsListeners[LS_NOTIF]=[];
   if(pieChartInst){pieChartInst.destroy();pieChartInst=null;}
   currentUser=null; evalData={}; teacherDocsData={}; unreadCount=0;
   document.getElementById('appPage').style.display='none';
@@ -897,43 +1173,57 @@ function doLogout(){
   document.getElementById('inputPass').value='';
 }
 
-// ════ FIREBASE LISTENERS ════
+// ════ LOCALSTORAGE LISTENERS ════
 function startEvalListener(){
-  evalRef.on('value',snap=>{
-    const raw=snap.val()||{};
+  const refresh=()=>{
+    const raw=lsGet(LS_EVAL)||{};
     const conv={};
     Object.keys(raw).forEach(k=>{conv[parseInt(k)]=raw[k];});
     evalData=conv;
     updateStats();
     renderTable();
     updateChart();
-  });
+  };
+  refresh();
+  if(!_lsListeners[LS_EVAL]) _lsListeners[LS_EVAL]=[];
+  _lsListeners[LS_EVAL].push(refresh);
 }
 function startAllDocsListener(){
-  docsRef.on('value',snap=>{
-    teacherDocsData=snap.val()||{};
+  const refresh=()=>{
+    teacherDocsData=lsGet(LS_DOCS)||{};
     renderTable();
-  });
+  };
+  refresh();
+  if(!_lsListeners[LS_DOCS]) _lsListeners[LS_DOCS]=[];
+  _lsListeners[LS_DOCS].push(refresh);
 }
 function startTeacherDocListener(){
   const uid=USERS[currentUser].username;
-  docsRef.child(uid).on('value',snap=>{
-    teacherDocsData[uid]=snap.val()||{};
+  const refresh=()=>{
+    const allDocs=lsGet(LS_DOCS)||{};
+    teacherDocsData[uid]=allDocs[uid]||{};
     const pg=document.getElementById('page-teacher-home');
     if(pg&&pg.classList.contains('active')) renderTeacherDashboard();
     const pgV=document.getElementById('page-teacher-viewdocs');
     if(pgV&&pgV.classList.contains('active')) renderViewDocs();
-  });
+  };
+  refresh();
+  if(!_lsListeners[LS_DOCS]) _lsListeners[LS_DOCS]=[];
+  _lsListeners[LS_DOCS].push(refresh);
 }
 function startNotifListener(){
   if(USERS[currentUser]?.type==='admin') return;
-  notifRef.child(currentUser).on('value',snap=>{
-    const data=snap.val()||{};
+  const refresh=()=>{
+    const allNotif=lsGet(LS_NOTIF)||{};
+    const data=allNotif[currentUser]||{};
     unreadCount=Object.values(data).filter(n=>!n.read).length;
     updateNotifBadge();
     const pg=document.getElementById('page-notifications');
     if(pg&&pg.classList.contains('active')) renderNotifications();
-  });
+  };
+  refresh();
+  if(!_lsListeners[LS_NOTIF]) _lsListeners[LS_NOTIF]=[];
+  _lsListeners[LS_NOTIF].push(refresh);
 }
 function updateNotifBadge(){
   const badge=document.getElementById('notifBadge');
@@ -963,10 +1253,6 @@ function buildSidebar(type){
         <svg class="nav-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
         <span>ข้อมูลส่วนตัว</span>
       </button>
-      <button class="nav-item" onclick="exportTeacherCSV()">
-        <svg class="nav-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-        <span>ส่งออก CSV</span>
-      </button>
       <button class="nav-item" onclick="openHelp('teacher')">
         <svg class="nav-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
         <span>วิธีใช้งาน / FAQ</span>
@@ -978,17 +1264,11 @@ function buildSidebar(type){
         <svg class="nav-ico" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
         <span>หน้าหลัก</span>
       </button>
-      ${!isAdmin?`
-      <button class="nav-item" id="snav-admin-notifications" onclick="showAdminPage('notifications')">
-        <svg class="nav-ico" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
-        <span>การแจ้งเตือน</span>
-        <span class="notif-badge" id="notifBadge" style="display:none"></span>
-      </button>`:''}
-      <button class="nav-item" onclick="exportCSV()">
-        <svg class="nav-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-        <span>ส่งออก CSV</span>
-      </button>
       ${isAdmin?`
+      <button class="nav-item" onclick="showAdminPage('manage')">
+        <svg class="nav-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+        <span>จัดการระบบ</span>
+      </button>
       <button class="nav-item" onclick="exportAdminReport()">
         <svg class="nav-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/></svg>
         <span>Export รายงาน PDF</span>
@@ -1010,7 +1290,9 @@ function showAdminPage(p){
   document.querySelectorAll('#sidebarNav .nav-item').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-admin-'+p)?.classList.add('active');
   document.getElementById('snav-admin-'+p)?.classList.add('active');
+  if(p==='home'){ updateStats(); renderTable(); updateChart(); }
   if(p==='notifications') renderNotifications();
+  if(p==='manage') renderManagePage();
   closeSidebar();
 }
 function showTeacherPage(p,tab){
@@ -1239,13 +1521,15 @@ function switchEvalTab(code){
 function renderEvalItem(item,docs){
   const rows=docs.length
     ?docs.map((d,i)=>{
-      const isImg=d.fileType&&['png','jpg','jpeg','gif'].includes(d.fileType.toLowerCase());
       return `<tr>
         <td style="text-align:center">${i+1}</td>
         <td>${esc(d.docName)}</td>
         <td>${d.docDetail?esc(d.docDetail):'–'}</td>
-        <td>${d.fileData?`<button class="file-link" style="background:none;border:none;cursor:pointer;padding:0" onclick='openFileBlob(${JSON.stringify(d.fileData)},${JSON.stringify(d.fileType||'')})' ><span class="file-tag ${isImg?'file-tag-img':'file-tag-pdf'}">${isImg?'🖼 IMG':'📄 PDF'}</span></button>`:'–'}</td>
-        <td><button class="btn-do btn-edit" style="font-size:11px;padding:4px 10px;color:var(--red);border-color:var(--red)" onclick="deleteDocV('${d._key}')">🗑 ลบ</button></td>
+        <td>${d.fileData?`<button class="file-link" style="background:none;border:none;cursor:pointer;padding:0" onclick='openFileBlob(${JSON.stringify(d.fileData)},"pdf")'><span class="file-tag file-tag-pdf">📄 PDF</span></button>`:'–'}</td>
+        <td style="white-space:nowrap">
+          <button class="btn-do btn-edit" style="font-size:11px;padding:4px 10px;color:var(--blue);border-color:var(--blue);margin-right:4px" onclick="editDocFile('${d._key}',${item.id})">✏️ แก้ไข PDF</button>
+          <button class="btn-do btn-edit" style="font-size:11px;padding:4px 10px;color:var(--red);border-color:var(--red)" onclick="deleteDocV('${d._key}')">🗑 ลบ</button>
+        </td>
       </tr>`;
     }).join('')
     :`<tr><td colspan="5" class="no-data" style="padding:20px">ยังไม่มีเอกสาร</td></tr>`;
@@ -1270,8 +1554,8 @@ function renderEvalItem(item,docs){
         </div>
         <div class="form-row" style="margin-top:8px">
           <div class="form-col flex-1">
-            <label class="form-lbl">แนบไฟล์ PDF/รูปภาพ <span style="color:var(--text3);font-weight:400">(ไม่บังคับ)</span></label>
-            <input type="file" class="fc fc-file" id="df_${item.id}" accept=".pdf,.jpg,.jpeg,.png,.gif">
+            <label class="form-lbl">แนบไฟล์ PDF <span style="color:var(--text3);font-weight:400">(ไม่เกิน 3 MB)</span></label>
+            <input type="file" class="fc fc-file" id="df_${item.id}" accept=".pdf,application/pdf">
             <div class="upload-progress" id="up_${item.id}">
               <div class="upload-bar-bg"><div class="upload-bar-fill" id="upfill_${item.id}"></div></div>
               <div class="upload-status" id="upst_${item.id}">กำลังอัปโหลด...</div>
@@ -1305,11 +1589,17 @@ function addDoc(itemId){
 
   const file=fileEl.files[0];
   if(file){
-    // ⚠️ แจ้งเตือนไฟล์ใหญ่เกิน 1MB
-    if(file.size > 1 * 1024 * 1024){
+    // ตรวจสอบประเภทไฟล์ (PDF เท่านั้น)
+    if(file.type!=='application/pdf'&&!file.name.toLowerCase().endsWith('.pdf')){
+      showToast('⚠️ รองรับเฉพาะไฟล์ PDF เท่านั้น','t-red');
+      fileEl.value='';return;
+    }
+    // ⚠️ แจ้งเตือนไฟล์เกิน 3MB
+    const MAX_MB=3;
+    if(file.size > MAX_MB*1024*1024){
       const sizeMB=(file.size/1024/1024).toFixed(2);
-      const ok=confirm(`⚠️ ไฟล์มีขนาด ${sizeMB} MB (เกิน 1 MB)\n\nการบันทึกไฟล์ขนาดใหญ่ลง Database อาจทำให้ระบบช้าหรือบันทึกไม่สำเร็จ\n\nต้องการดำเนินการต่อหรือไม่?`);
-      if(!ok) return;
+      showToast(`⚠️ ไฟล์ขนาด ${sizeMB} MB เกินขีดจำกัด ${MAX_MB} MB กรุณาบีบอัดไฟล์ก่อน`,'t-red');
+      fileEl.value='';return;
     }
     const upProg=document.getElementById('up_'+itemId);
     const upFill=document.getElementById('upfill_'+itemId);
@@ -1317,7 +1607,7 @@ function addDoc(itemId){
     upProg.style.display='block';
     upFill.style.width='0%';
     upSt.textContent='กำลังแปลงไฟล์...';
-    const ext=file.name.split('.').pop().toLowerCase();
+    const ext='pdf';
     const reader=new FileReader();
     reader.onprogress=function(e){
       if(e.lengthComputable){
@@ -1329,7 +1619,7 @@ function addDoc(itemId){
     reader.onload=function(e){
       upFill.style.width='100%';
       upSt.textContent='กำลังบันทึก...';
-      const fileData=e.target.result; // Base64 Data URL
+      const fileData=e.target.result;
       saveDoc(uid,itemId,docName,detailEl.value.trim(),fileData,ext,cat,teacherInfo,upProg);
       nameEl.value='';detailEl.value='';fileEl.value='';
     };
@@ -1345,18 +1635,19 @@ function addDoc(itemId){
 }
 function saveDoc(uid,itemId,docName,docDetail,fileData,fileType,cat,teacherInfo,upProg){
   const docObj={itemId,docName,docDetail:docDetail||'',fileData:fileData||'',fileType:fileType||'',uploadedAt:Date.now()};
-  docsRef.child(uid).push(docObj).then(ref=>{
-    // อัปเดต teacherDocsData ทันทีโดยไม่รอ listener (เพื่อ renderEvaluation ทำงานได้เลย)
-    if(!teacherDocsData[uid]) teacherDocsData[uid]={};
-    teacherDocsData[uid][ref.key]=docObj;
-    if(upProg){ upProg.style.display='none'; }
-    showToast('✅ เพิ่มเอกสารเรียบร้อย','t-green');
-    renderEvaluation(activeEvalTab);
-    sendNotification(teacherInfo.name,teacherInfo.teacherId,docName,cat?cat.name:'');
-  }).catch(err=>{
-    if(upProg) upProg.style.display='none';
-    showToast('บันทึกไม่สำเร็จ: '+(err.message||'กรุณาลองใหม่'),'t-red');
-  });
+  const newKey='ls_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+  const allDocs=lsGet(LS_DOCS)||{};
+  if(!allDocs[uid]) allDocs[uid]={};
+  allDocs[uid][newKey]=docObj;
+  lsSet(LS_DOCS,allDocs);
+  // อัปเดต teacherDocsData ทันที
+  if(!teacherDocsData[uid]) teacherDocsData[uid]={};
+  teacherDocsData[uid][newKey]=docObj;
+  _notifyListeners(LS_DOCS);
+  if(upProg){ upProg.style.display='none'; }
+  showToast('✅ เพิ่มเอกสารเรียบร้อย','t-green');
+  renderEvaluation(activeEvalTab);
+  sendNotification(teacherInfo.name,teacherInfo.teacherId,docName,cat?cat.name:'');
 }
 
 // ════ TEACHER: VIEW DOCS ════
@@ -1376,14 +1667,13 @@ function renderViewDocs(){
         if(!itemDocs.length) return `<div style="padding:8px 18px;font-size:12px;color:var(--text3);border-bottom:1px solid var(--border)">${item.code} ${item.name} — <em>ยังไม่มีเอกสาร</em></div>`;
         return itemDocs.map(d=>`
           <div style="padding:10px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;font-size:13px">
-            <span style="font-size:16px">${d.fileData?(['jpg','jpeg','png','gif'].includes((d.fileType||'').toLowerCase())?'🖼️':'📄'):'📝'}</span>
+            <span style="font-size:16px">${d.fileData?'📄':'📝'}</span>
             <div style="flex:1">
               <div style="font-weight:600">${esc(d.docName)} <small style="font-weight:400;color:var(--text2)">${item.code} ${item.name}</small></div>
               ${d.docDetail?`<div style="font-size:11px;color:var(--text2)">${esc(d.docDetail)}</div>`:''}
               <div style="font-size:11px;color:var(--text3)">${d.uploadedAt?new Date(d.uploadedAt).toLocaleString('th-TH'):''}</div>
             </div>
-            ${d.fileData?`<button class="file-link" style="background:none;border:none;cursor:pointer;white-space:nowrap" onclick='openFileBlob(${JSON.stringify(d.fileData)},${JSON.stringify(d.fileType||'')})'>เปิดไฟล์ ↗</button>`:''}
-            <button class="btn-do btn-edit" style="font-size:11px;padding:4px 10px;color:var(--red);border-color:var(--red)" onclick="deleteDocV('${d._key}')">🗑</button>
+            ${d.fileData?`<button class="file-link" style="background:none;border:1px solid var(--blue);border-radius:5px;color:var(--blue);cursor:pointer;padding:5px 12px;font-size:12px;font-family:'Sarabun',sans-serif;white-space:nowrap" onclick='openFileBlob(${JSON.stringify(d.fileData)},"pdf")'>👁 ดู PDF</button>`:''}
           </div>`).join('');
       }).join('')}
     </div>`;
@@ -1392,10 +1682,47 @@ function renderViewDocs(){
 function deleteDocV(docKey){
   if(!confirm('ยืนยันการลบ?'))return;
   const uid=USERS[currentUser].username;
-  docsRef.child(uid).child(docKey).remove().then(()=>{
-    showToast('ลบเอกสารเรียบร้อย','t-green');
-    renderViewDocs();
-  });
+  const allDocs=lsGet(LS_DOCS)||{};
+  if(allDocs[uid]) delete allDocs[uid][docKey];
+  lsSet(LS_DOCS,allDocs);
+  if(teacherDocsData[uid]) delete teacherDocsData[uid][docKey];
+  _notifyListeners(LS_DOCS);
+  showToast('ลบเอกสารเรียบร้อย','t-green');
+  renderViewDocs();
+}
+function editDocFile(docKey,itemId){
+  // สร้าง input file ชั่วคราว
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='.pdf,application/pdf';
+  inp.onchange=function(){
+    const file=inp.files[0];
+    if(!file) return;
+    if(file.type!=='application/pdf'&&!file.name.toLowerCase().endsWith('.pdf')){
+      showToast('⚠️ รองรับเฉพาะไฟล์ PDF เท่านั้น','t-red');return;
+    }
+    if(file.size>3*1024*1024){
+      showToast('⚠️ ไฟล์เกิน 3 MB กรุณาบีบอัดก่อน','t-red');return;
+    }
+    const reader=new FileReader();
+    reader.onload=function(e){
+      const uid=USERS[currentUser].username;
+      const allDocs=lsGet(LS_DOCS)||{};
+      if(allDocs[uid]&&allDocs[uid][docKey]){
+        allDocs[uid][docKey].fileData=e.target.result;
+        allDocs[uid][docKey].fileType='pdf';
+        lsSet(LS_DOCS,allDocs);
+        if(teacherDocsData[uid]&&teacherDocsData[uid][docKey]){
+          teacherDocsData[uid][docKey].fileData=e.target.result;
+          teacherDocsData[uid][docKey].fileType='pdf';
+        }
+        _notifyListeners(LS_DOCS);
+        showToast('✅ อัปเดตไฟล์ PDF เรียบร้อย','t-green');
+        renderEvaluation(activeEvalTab);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  inp.click();
 }
 
 // ════ PROFILE ════
@@ -1421,6 +1748,32 @@ function openModal(tid){
   document.getElementById('mTitle').textContent=t.name;
   document.getElementById('mSub').textContent=t.dept+' · '+(isAdmin?'(ผู้ดูแลระบบ – ดูได้อย่างเดียว)':'ประเมินโดย: '+USERS[currentUser].name);
   document.getElementById('btnSave').disabled=isAdmin;
+  document.getElementById('quickScoreSection').style.display=isAdmin?'none':'block';
+  // สร้างปุ่ม Quick Score
+  if(!isAdmin){
+    const qScores=[
+      {score:95,label:'ดีเด่น'},{score:90,label:'ดีเด่น'},
+      {score:85,label:'ดีมาก'},{score:80,label:'ดีมาก'},
+      {score:75,label:'ดี'},{score:70,label:'ดี'},
+      {score:65,label:'พอใช้'},{score:60,label:'พอใช้'},
+    ];
+    const btnWrap=document.getElementById('quickScoreBtns');
+    btnWrap.innerHTML='<span style="font-size:12px;color:var(--text2);font-weight:600">เลือกคะแนน:</span>';
+    qScores.forEach(function(q){
+      const btn=document.createElement('button');
+      btn.textContent=q.score+' ';
+      const small=document.createElement('span');
+      small.textContent=q.label;
+      small.style.cssText='font-size:10px;opacity:.75';
+      btn.appendChild(small);
+      btn.style.cssText='padding:6px 13px;border:1px solid var(--border2);border-radius:20px;cursor:pointer;font-size:13px;font-family:"Sarabun",sans-serif;font-weight:600;background:#fff;transition:all .15s';
+      btn.addEventListener('mouseover',function(){this.style.background='var(--green)';this.style.color='#fff';this.style.borderColor='var(--green)';});
+      btn.addEventListener('mouseout',function(){this.style.background='#fff';this.style.color='';this.style.borderColor='var(--border2)';});
+      btn.addEventListener('click',function(){applyQuickScore(q.score);});
+      btnWrap.appendChild(btn);
+    });
+    document.getElementById('quickScoreMsg').style.display='none';
+  }
 
   // โหลดเอกสารของครู
   const teacherKey='teacher'+(String(tid).padStart(2,'0'));
@@ -1477,39 +1830,37 @@ function openModal(tid){
 function loadTeacherDocsForModal(teacherKey){
   const listEl=document.getElementById('docsPreviewList');
   listEl.innerHTML='<div class="no-docs-note">⏳ กำลังโหลดเอกสาร...</div>';
-  docsRef.child(teacherKey).once('value').then(snap=>{
-    const docs=snap.val()||{};
-    const allDocs=Object.values(docs);
-    if(!allDocs.length){
-      listEl.innerHTML='<div class="no-docs-note">📭 ครูยังไม่ได้อัปโหลดเอกสาร</div>';
-      return;
-    }
-    const grouped={};
-    allDocs.forEach(d=>{
-      const cat=DOC_CATEGORIES.flatMap(c=>c.items).find(i=>i.id===d.itemId);
-      const label=cat?cat.code+' '+cat.name:'อื่นๆ';
-      if(!grouped[label]) grouped[label]=[];
-      grouped[label].push(d);
-    });
-    let html='';
-    Object.entries(grouped).forEach(([label,docs])=>{
-      docs.forEach(d=>{
-        const isImg=d.fileType&&['png','jpg','jpeg','gif'].includes(d.fileType.toLowerCase());
-        const icon=d.fileData?(isImg?'🖼️':'📄'):'📝';
-        const tagHtml=d.fileData?`<span class="file-tag ${isImg?'file-tag-img':'file-tag-pdf'}">${isImg?'IMG':'PDF'}</span>`:'';
+  const allDocs_ls=lsGet(LS_DOCS)||{};
+  const docs=allDocs_ls[teacherKey]||{};
+  const allDocs=Object.values(docs);
+  if(!allDocs.length){
+    listEl.innerHTML='<div class="no-docs-note">📭 ครูยังไม่ได้อัปโหลดเอกสาร</div>';
+    return;
+  }
+  // จัดกลุ่มตาม DOC_CATEGORIES
+  let html='';
+  DOC_CATEGORIES.forEach(cat=>{
+    const catDocs=allDocs.filter(d=>cat.items.some(i=>i.id===d.itemId));
+    if(!catDocs.length) return;
+    html+=`<div style="margin-bottom:10px;font-size:12px;font-weight:700;color:var(--green-d);padding:4px 0;border-bottom:1px solid var(--border)">📂 ${cat.name}</div>`;
+    cat.items.forEach(item=>{
+      const itemDocs=catDocs.filter(d=>d.itemId===item.id);
+      if(!itemDocs.length) return;
+      itemDocs.forEach(d=>{
         html+=`<div class="doc-preview-item">
-          <span class="doc-preview-icon">${icon}</span>
+          <span class="doc-preview-icon">${d.fileData?'📄':'📝'}</span>
           <div class="doc-preview-info">
-            <div class="doc-preview-name">${esc(d.docName)} <small style="font-weight:400;color:var(--text3)">${label}</small></div>
+            <div class="doc-preview-name">${esc(d.docName)} <small style="font-weight:400;color:var(--text3)">${item.code}</small></div>
             ${d.docDetail?`<div class="doc-preview-detail">${esc(d.docDetail)}</div>`:''}
+            <div style="font-size:10px;color:var(--text3)">${d.uploadedAt?new Date(d.uploadedAt).toLocaleDateString('th-TH'):''}</div>
           </div>
-          ${tagHtml}
-          ${d.fileData?`<button class="doc-preview-link" style="background:none;border:1px solid var(--blue);border-radius:5px;color:var(--blue);cursor:pointer;padding:4px 10px;font-size:12px;font-family:'Sarabun',sans-serif" onclick='openFileBlob(${JSON.stringify(d.fileData)},${JSON.stringify(d.fileType||'')})'>เปิดไฟล์ ↗</button>`:''}
+          ${d.fileData?`<span class="file-tag file-tag-pdf" style="flex-shrink:0">PDF</span>`:''}
+          ${d.fileData?`<button class="doc-preview-link" style="background:none;border:1px solid var(--blue);border-radius:5px;color:var(--blue);cursor:pointer;padding:5px 12px;font-size:12px;font-family:'Sarabun',sans-serif;white-space:nowrap;flex-shrink:0" onclick='openFileBlob(${JSON.stringify(d.fileData)},"pdf")'>👁 ดู PDF</button>`:''}
         </div>`;
       });
     });
-    listEl.innerHTML=html;
   });
+  listEl.innerHTML=html||'<div class="no-docs-note">📭 ไม่มีเอกสาร</div>';
 }
 function onLevelChange(el){
   const lv=parseInt(el.value);const max=parseFloat(el.dataset.max);
@@ -1561,16 +1912,14 @@ function saveEval(){
   const t=TEACHERS.find(x=>x.id===currentTid);
   document.getElementById('btnSave').disabled=true;
   document.getElementById('btnSave').innerHTML='<span class="spinner"></span> กำลังบันทึก...';
-  evalRef.child(String(currentTid)).child(currentUser).set(scoreObj)
-    .then(()=>{
-      closeModal();
-      showToast('✅ บันทึกแล้ว · '+t.name+' · '+scoreObj.score.toFixed(2)+' คะแนน','t-green');
-    })
-    .catch(()=>{
-      document.getElementById('btnSave').disabled=false;
-      document.getElementById('btnSave').textContent='บันทึกคะแนน';
-      showToast('⚠ บันทึกไม่สำเร็จ กรุณาลองใหม่','t-red');
-    });
+  // บันทึกลง localStorage
+  const allEval=lsGet(LS_EVAL)||{};
+  if(!allEval[String(currentTid)]) allEval[String(currentTid)]={};
+  allEval[String(currentTid)][currentUser]=scoreObj;
+  lsSet(LS_EVAL,allEval);
+  _notifyListeners(LS_EVAL);
+  closeModal();
+  showToast('✅ บันทึกแล้ว · '+t.name+' · '+scoreObj.score.toFixed(2)+' คะแนน','t-green');
 }
 function closeModal(){
   document.getElementById('modalOverlay').classList.remove('open');
@@ -1584,42 +1933,53 @@ document.getElementById('modalOverlay').addEventListener('click',function(e){if(
 // ════ NOTIFICATIONS ════
 function renderNotifications(){
   const list=document.getElementById('notifList');
-  notifRef.child(currentUser).orderByChild('uploadedAt').limitToLast(50).once('value').then(snap=>{
-    const data=snap.val()||{};
-    const items=Object.entries(data).sort((a,b)=>b[1].uploadedAt-a[1].uploadedAt);
-    if(!items.length){
-      list.innerHTML='<div class="notif-empty">🔕 ยังไม่มีการแจ้งเตือน<br><small>เมื่อครูอัปโหลดเอกสารใหม่จะแสดงที่นี่</small></div>';return;
-    }
-    list.innerHTML=items.map(([key,n])=>`
-      <div class="notif-item ${n.read?'':'unread'}" onclick="markRead('${key}',${n.teacherId})">
-        <div class="notif-icon ${n.read?'':'new'}">${n.read?'📄':'🆕'}</div>
-        <div class="notif-body">
-          <div class="notif-title">${esc(n.teacherName)} อัปโหลดเอกสารใหม่</div>
-          <div class="notif-desc">📎 ${esc(n.docName)} · ${esc(n.itemName||'')}</div>
-          <div class="notif-time">${new Date(n.uploadedAt).toLocaleString('th-TH')}</div>
-        </div>
-        ${!n.read?'<span style="width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:6px"></span>':''}
+  const allNotif=lsGet(LS_NOTIF)||{};
+  const data=allNotif[currentUser]||{};
+  const items=Object.entries(data).sort((a,b)=>b[1].uploadedAt-a[1].uploadedAt).slice(0,50);
+  if(!items.length){
+    list.innerHTML='<div class="notif-empty">🔕 ยังไม่มีการแจ้งเตือน<br><small>เมื่อครูอัปโหลดเอกสารใหม่จะแสดงที่นี่</small></div>';return;
+  }
+  list.innerHTML=items.map(([key,n])=>`
+    <div class="notif-item ${n.read?'':'unread'}" onclick="markRead('${key}',${n.teacherId})">
+      <div class="notif-icon ${n.read?'':'new'}">${n.read?'📄':'🆕'}</div>
+      <div class="notif-body">
+        <div class="notif-title">${esc(n.teacherName)} อัปโหลดเอกสารใหม่</div>
+        <div class="notif-desc">📎 ${esc(n.docName)} · ${esc(n.itemName||'')}</div>
+        <div class="notif-time">${new Date(n.uploadedAt).toLocaleString('th-TH')}</div>
       </div>
-    `).join('');
-  });
+      ${!n.read?'<span style="width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:6px"></span>':''}
+    </div>
+  `).join('');
 }
 function markRead(key,teacherId){
-  notifRef.child(currentUser).child(key).update({read:true});
+  const allNotif=lsGet(LS_NOTIF)||{};
+  if(allNotif[currentUser]&&allNotif[currentUser][key]){
+    allNotif[currentUser][key].read=true;
+    lsSet(LS_NOTIF,allNotif);
+    _notifyListeners(LS_NOTIF);
+  }
   if(teacherId) openModal(teacherId);
 }
 function markAllRead(){
-  notifRef.child(currentUser).once('value').then(snap=>{
-    const updates={};
-    Object.keys(snap.val()||{}).forEach(k=>{updates[k+'/read']=true;});
-    notifRef.child(currentUser).update(updates).then(()=>{
-      showToast('อ่านทั้งหมดแล้ว','t-blue');
-      renderNotifications();
-    });
-  });
+  const allNotif=lsGet(LS_NOTIF)||{};
+  const data=allNotif[currentUser]||{};
+  Object.keys(data).forEach(k=>{data[k].read=true;});
+  allNotif[currentUser]=data;
+  lsSet(LS_NOTIF,allNotif);
+  _notifyListeners(LS_NOTIF);
+  showToast('อ่านทั้งหมดแล้ว','t-blue');
+  renderNotifications();
 }
 function sendNotification(teacherName,teacherId,docName,itemName){
+  const allNotif=lsGet(LS_NOTIF)||{};
   const notifData={teacherName,teacherId,docName,itemName,uploadedAt:Date.now(),read:false};
-  EVALUATORS.forEach(evId=>{notifRef.child(evId).push(notifData);});
+  EVALUATORS.forEach(evId=>{
+    if(!allNotif[evId]) allNotif[evId]={};
+    const newKey='ls_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    allNotif[evId][newKey]=notifData;
+  });
+  lsSet(LS_NOTIF,allNotif);
+  _notifyListeners(LS_NOTIF);
 }
 
 // ════ EXPORT CSV ════
@@ -1803,6 +2163,297 @@ function openFileBlob(fileData, fileType){
   }
 }
 
+// ════ QUICK SCORE ════
+function applyQuickScore(targetScore){
+  const isAdmin=USERS[currentUser]?.type==='admin';
+  if(isAdmin) return;
+
+  const allItems=CRITERIA.flatMap(s=>s.items.filter(i=>!i.subHead&&i.id.startsWith('c')));
+
+  // คำนวณ level ที่เหมาะสมของแต่ละข้อแบบ greedy
+  // เริ่มจาก level ต่ำสุด (1) แล้วค่อยๆ เพิ่มขึ้นตามสัดส่วน
+  // score ของแต่ละข้อ = lv * maxScore / 4
+  // รวม targetScore = sum(lv_i * max_i / 4)
+
+  // วิธี: assign level พื้นฐาน = floor(targetScore/100 * 4) ทุกข้อ
+  // แล้วนำ "เศษ" ที่ขาดไปกระจายให้บาง item เพิ่ม 1 level
+
+  const baseRatio = targetScore / 100; // เช่น 0.85, 0.90, 0.95
+  const baseLv = Math.max(1, Math.min(3, Math.floor(baseRatio * 4))); // floor ให้ได้ level ฐาน
+  const nextLv = Math.min(4, baseLv + 1);
+
+  // คำนวณคะแนนถ้าทุกข้อได้ baseLv
+  const scoreAtBase = allItems.reduce((s, item) => s + baseLv * item.maxScore / 4, 0);
+  // คะแนนถ้าทุกข้อได้ nextLv
+  const scoreAtNext = allItems.reduce((s, item) => s + nextLv * item.maxScore / 4, 0);
+
+  // ต้องการ targetScore → หาว่าต้องมีกี่ข้อที่ขึ้นเป็น nextLv
+  // targetScore ≈ scoreAtBase + k * (nextLv - baseLv)/4 * avgMax
+  // แก้แบบ greedy: เรียง item ตาม maxScore มาก→น้อย แล้ว upgrade ทีละข้อจนถึงเป้า
+
+  // เริ่มด้วยทุกข้อ = baseLv
+  const levels = {};
+  allItems.forEach(item => { levels[item.id] = baseLv; });
+  let currentScore = scoreAtBase;
+
+  // เรียง item ตาม maxScore มาก→น้อย เพื่อ upgrade ได้เร็วที่สุด
+  const sortedItems = [...allItems].sort((a, b) => b.maxScore - a.maxScore);
+  for(const item of sortedItems){
+    if(currentScore >= targetScore) break;
+    const gain = (nextLv - baseLv) * item.maxScore / 4;
+    if(currentScore + gain <= targetScore + 0.001){
+      levels[item.id] = nextLv;
+      currentScore += gain;
+    }
+  }
+
+  // ถ้ายังขาดอยู่ให้ลองเพิ่มอีกรอบ (กรณี baseLv=3 → nextLv=4)
+  if(currentScore < targetScore - 0.5){
+    for(const item of sortedItems){
+      if(currentScore >= targetScore) break;
+      if(levels[item.id] < 4){
+        const gain = (4 - levels[item.id]) * item.maxScore / 4;
+        levels[item.id] = 4;
+        currentScore += gain;
+      }
+    }
+  }
+
+  // Apply ค่า level ลง UI
+  allItems.forEach(item=>{
+    const lv = levels[item.id];
+    const radio=document.querySelector(`input[name="lvl_${item.id}"][value="${lv}"]`);
+    if(radio){
+      radio.checked=true;
+      document.getElementById('w_'+item.id).textContent=(lv*item.maxScore/4).toFixed(2)+' คะแนน';
+      document.querySelectorAll(`input[name="lvl_${item.id}"]`).forEach(r=>{
+        const lbl=r.parentElement; const sel=r.checked;
+        lbl.style.borderColor=sel?'var(--green)':'var(--border2)';
+        lbl.style.background=sel?'var(--green-l)':'#fff';
+        lbl.querySelector('span').style.color=sel?'var(--green)':'var(--text2)';
+      });
+    }
+  });
+
+  calcTotal();
+  const realTotal=allItems.reduce((s,item)=>{
+    const checked=document.querySelector(`input[name="lvl_${item.id}"]:checked`);
+    return s+(checked?parseInt(checked.value)*item.maxScore/4:0);
+  },0);
+  const msg=document.getElementById('quickScoreMsg');
+  msg.style.display='block';
+  msg.innerHTML=`✅ เฉลี่ยคะแนนแล้ว → ได้คะแนนรวม <strong>${realTotal.toFixed(2)} คะแนน</strong> (เป้าหมาย ${targetScore}) &nbsp;|&nbsp; สามารถปรับแต่ละข้อเพิ่มเติมได้`;
+}
+
+// ════ ADMIN MANAGE ════
+var _editCatIdx=null, _editItemIdx=null, _editItemCatIdx=null;
+var _editCritIdx=null, _editCritSecIdx=null;
+var _editTeacherIdx=null;
+
+function switchManageTab(tab){
+  document.querySelectorAll('#manageTabNav .tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['categories','criteria','teachers'][i]===tab);
+  });
+  document.querySelectorAll('#page-admin-manage .tab-content').forEach(tc=>{
+    tc.classList.toggle('active',tc.id==='mtab-'+tab);
+  });
+  if(tab==='categories') renderManageCategories();
+  if(tab==='criteria') renderManageCriteria();
+  if(tab==='teachers') renderManageTeachers();
+}
+
+function renderManagePage(){
+  renderManageCategories();
+}
+
+// ── หัวหลัก/หัวย่อย ──
+function renderManageCategories(){
+  const el=document.getElementById('manageCatList');
+  if(!el) return;
+  let html='';
+  DOC_CATEGORIES.forEach((cat,ci)=>{
+    html+=`<div style="border-bottom:1px solid var(--border);padding:12px 18px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-weight:700;font-size:14px">📂 [${cat.code}] ${cat.name}</span>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button class="btn-do btn-edit" style="font-size:11px;padding:3px 9px;color:var(--blue);border-color:var(--blue)" onclick="openEditCatModal(${ci})">✏️ แก้ไข</button>
+          <button class="btn-do btn-edit" style="font-size:11px;padding:3px 9px;color:var(--red);border-color:var(--red)" onclick="deleteCat(${ci})">🗑 ลบ</button>
+          <button class="btn-do btn-edit" style="font-size:11px;padding:3px 9px;color:var(--green);border-color:var(--green)" onclick="openAddItemModal(${ci})">+ หัวย่อย</button>
+        </div>
+      </div>
+      <div style="padding-left:16px">
+        ${cat.items.map((item,ii)=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px dashed var(--border);font-size:13px">
+          <span style="color:var(--text2)">${item.code}</span>
+          <span style="flex:1">${item.name}</span>
+          <button class="btn-do btn-edit" style="font-size:11px;padding:2px 8px;color:var(--blue);border-color:var(--blue)" onclick="openEditItemModal(${ci},${ii})">✏️</button>
+          <button class="btn-do btn-edit" style="font-size:11px;padding:2px 8px;color:var(--red);border-color:var(--red)" onclick="deleteItem(${ci},${ii})">🗑</button>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html||'<div style="padding:20px;color:var(--text3);text-align:center">ยังไม่มีหัวหลัก</div>';
+}
+
+function openAddCatModal(){ _editCatIdx=null; document.getElementById('catModalTitle').textContent='เพิ่มหัวหลัก'; document.getElementById('catCode').value=''; document.getElementById('catName').value=''; document.getElementById('catModalOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
+function openEditCatModal(ci){ _editCatIdx=ci; document.getElementById('catModalTitle').textContent='แก้ไขหัวหลัก'; document.getElementById('catCode').value=DOC_CATEGORIES[ci].code; document.getElementById('catName').value=DOC_CATEGORIES[ci].name; document.getElementById('catModalOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeCatModal(){ document.getElementById('catModalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function saveCatModal(){
+  const code=document.getElementById('catCode').value.trim();
+  const name=document.getElementById('catName').value.trim();
+  if(!code||!name){showToast('กรุณากรอกข้อมูลให้ครบ','t-red');return;}
+  if(_editCatIdx===null){ DOC_CATEGORIES.push({code,name,items:[]}); }
+  else { DOC_CATEGORIES[_editCatIdx].code=code; DOC_CATEGORIES[_editCatIdx].name=name; }
+  closeCatModal(); renderManageCategories(); showToast('บันทึกหัวหลักเรียบร้อย','t-green');
+}
+function deleteCat(ci){
+  if(!confirm(`ลบ "${DOC_CATEGORIES[ci].name}" และหัวย่อยทั้งหมด?`)) return;
+  DOC_CATEGORIES.splice(ci,1); renderManageCategories(); showToast('ลบหัวหลักเรียบร้อย','t-green');
+}
+
+function openAddItemModal(ci){
+  _editItemIdx=null; _editItemCatIdx=ci;
+  document.getElementById('itemModalTitle').textContent='เพิ่มหัวย่อย';
+  const sel=document.getElementById('itemCatCode');
+  sel.innerHTML=DOC_CATEGORIES.map((c,i)=>`<option value="${i}" ${i===ci?'selected':''}>${c.code} ${c.name}</option>`).join('');
+  document.getElementById('itemCode').value=''; document.getElementById('itemName').value='';
+  document.getElementById('itemModalOverlay').classList.add('open'); document.body.style.overflow='hidden';
+}
+function openEditItemModal(ci,ii){
+  _editItemIdx=ii; _editItemCatIdx=ci;
+  document.getElementById('itemModalTitle').textContent='แก้ไขหัวย่อย';
+  const sel=document.getElementById('itemCatCode');
+  sel.innerHTML=DOC_CATEGORIES.map((c,i)=>`<option value="${i}" ${i===ci?'selected':''}>${c.code} ${c.name}</option>`).join('');
+  document.getElementById('itemCode').value=DOC_CATEGORIES[ci].items[ii].code;
+  document.getElementById('itemName').value=DOC_CATEGORIES[ci].items[ii].name;
+  document.getElementById('itemModalOverlay').classList.add('open'); document.body.style.overflow='hidden';
+}
+function closeItemModal(){ document.getElementById('itemModalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function saveItemModal(){
+  const ci=parseInt(document.getElementById('itemCatCode').value);
+  const code=document.getElementById('itemCode').value.trim();
+  const name=document.getElementById('itemName').value.trim();
+  if(!code||!name){showToast('กรุณากรอกข้อมูลให้ครบ','t-red');return;}
+  const maxId=DOC_CATEGORIES.flatMap(c=>c.items).reduce((m,i)=>Math.max(m,i.id),0);
+  if(_editItemIdx===null){ DOC_CATEGORIES[ci].items.push({id:maxId+1,code,name}); }
+  else { const old=DOC_CATEGORIES[_editItemCatIdx].items.splice(_editItemIdx,1)[0]; DOC_CATEGORIES[ci].items.push({...old,code,name}); }
+  closeItemModal(); renderManageCategories(); showToast('บันทึกหัวย่อยเรียบร้อย','t-green');
+}
+function deleteItem(ci,ii){
+  if(!confirm(`ลบ "${DOC_CATEGORIES[ci].items[ii].name}"?`)) return;
+  DOC_CATEGORIES[ci].items.splice(ii,1); renderManageCategories(); showToast('ลบหัวย่อยเรียบร้อย','t-green');
+}
+
+// ── เกณฑ์คะแนน ──
+function renderManageCriteria(){
+  const el=document.getElementById('manageCriteriaList');
+  if(!el) return;
+  let html='';
+  CRITERIA.forEach((sec,si)=>{
+    html+=`<div style="border-bottom:2px solid var(--border);padding:14px 18px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-weight:700;font-size:13px;color:var(--green-d)">📌 ${sec.section} <span style="font-size:11px;color:var(--text2)">(สูงสุด ${sec.sectionMax} คะแนน)</span></span>
+        <button class="btn-do btn-edit" style="font-size:11px;padding:3px 9px;color:var(--blue);border-color:var(--blue);margin-left:auto" onclick="openAddCriteriaModal(${si})">+ เพิ่มข้อ</button>
+      </div>
+      <div style="padding-left:12px">
+        ${sec.items.filter(i=>!i.subHead).map((item,ii)=>{
+          const realIdx=sec.items.indexOf(item);
+          return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--border);font-size:13px">
+            <span style="flex:1">${item.name}</span>
+            <span style="font-size:11px;background:#f3f4f6;padding:2px 8px;border-radius:10px;white-space:nowrap">สูงสุด ${item.maxScore} คะแนน</span>
+            <button class="btn-do btn-edit" style="font-size:11px;padding:2px 8px;color:var(--blue);border-color:var(--blue)" onclick="openEditCriteriaModal(${si},${realIdx})">✏️</button>
+            <button class="btn-do btn-edit" style="font-size:11px;padding:2px 8px;color:var(--red);border-color:var(--red)" onclick="deleteCriteriaItem(${si},${realIdx})">🗑</button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+function openAddCriteriaModal(si){
+  _editCritIdx=null; _editCritSecIdx=si!==undefined?si:0;
+  document.getElementById('criteriaModalTitle').textContent='เพิ่มหัวข้อเกณฑ์';
+  const sel=document.getElementById('critSectionIdx');
+  sel.innerHTML=CRITERIA.map((s,i)=>`<option value="${i}" ${i===_editCritSecIdx?'selected':''}>${s.section}</option>`).join('');
+  document.getElementById('critName').value=''; document.getElementById('critDesc').value=''; document.getElementById('critMax').value='4';
+  document.getElementById('criteriaModalOverlay').classList.add('open'); document.body.style.overflow='hidden';
+}
+function openEditCriteriaModal(si,ii){
+  _editCritIdx=ii; _editCritSecIdx=si;
+  document.getElementById('criteriaModalTitle').textContent='แก้ไขหัวข้อเกณฑ์';
+  const sel=document.getElementById('critSectionIdx');
+  sel.innerHTML=CRITERIA.map((s,i)=>`<option value="${i}" ${i===si?'selected':''}>${s.section}</option>`).join('');
+  const item=CRITERIA[si].items[ii];
+  document.getElementById('critName').value=item.name; document.getElementById('critDesc').value=item.desc||''; document.getElementById('critMax').value=item.maxScore;
+  document.getElementById('criteriaModalOverlay').classList.add('open'); document.body.style.overflow='hidden';
+}
+function closeCriteriaModal(){ document.getElementById('criteriaModalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function saveCriteriaModal(){
+  const si=parseInt(document.getElementById('critSectionIdx').value);
+  const name=document.getElementById('critName').value.trim();
+  const desc=document.getElementById('critDesc').value.trim();
+  const maxScore=Math.min(4,Math.max(1,parseInt(document.getElementById('critMax').value)||4));
+  if(!name){showToast('กรุณากรอกชื่อหัวข้อ','t-red');return;}
+  // สร้าง id อัตโนมัติ
+  const allIds=CRITERIA.flatMap(s=>s.items.filter(i=>i.id&&i.id.startsWith('c')).map(i=>parseInt(i.id.replace('c',''))||0));
+  const nextId='c'+String(Math.max(0,...allIds)+1).padStart(2,'0');
+  if(_editCritIdx===null){ CRITERIA[si].items.push({id:nextId,name,desc,maxScore}); }
+  else { CRITERIA[_editCritSecIdx].items[_editCritIdx]={...CRITERIA[_editCritSecIdx].items[_editCritIdx],name,desc,maxScore}; }
+  closeCriteriaModal(); renderManageCriteria(); showToast('บันทึกเกณฑ์เรียบร้อย','t-green');
+}
+function deleteCriteriaItem(si,ii){
+  if(!confirm(`ลบ "${CRITERIA[si].items[ii].name}"?`)) return;
+  CRITERIA[si].items.splice(ii,1); renderManageCriteria(); showToast('ลบหัวข้อเรียบร้อย','t-green');
+}
+
+// ── ข้อมูลครู ──
+function renderManageTeachers(){
+  const el=document.getElementById('manageTeacherList');
+  if(!el) return;
+  let html=`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>#</th><th>ชื่อ-นามสกุล</th><th>แผนกวิชา</th><th>username</th><th>จัดการ</th></tr></thead><tbody>`;
+  TEACHERS.forEach((t,i)=>{
+    const key='teacher'+(String(i+1).padStart(2,'0'));
+    html+=`<tr>
+      <td style="text-align:center;color:var(--text3)">${i+1}</td>
+      <td>${esc(t.name)}</td>
+      <td style="font-size:12px;color:var(--text2)">${esc(t.dept)}</td>
+      <td style="font-size:12px;color:var(--blue)">${key}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-do btn-edit" style="font-size:11px;padding:3px 9px;color:var(--blue);border-color:var(--blue)" onclick="openEditTeacherModal(${i})">✏️ แก้ไข</button>
+        <button class="btn-do btn-edit" style="font-size:11px;padding:3px 9px;color:var(--red);border-color:var(--red)" onclick="deleteTeacher(${i})">🗑 ลบ</button>
+      </td>
+    </tr>`;
+  });
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
+}
+function openAddTeacherModal(){ _editTeacherIdx=null; document.getElementById('teacherModalTitle').textContent='เพิ่มครู'; document.getElementById('tName').value=''; document.getElementById('tDept').value=''; document.getElementById('tPass').value='1234'; document.getElementById('teacherModalOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
+function openEditTeacherModal(i){ _editTeacherIdx=i; document.getElementById('teacherModalTitle').textContent='แก้ไขข้อมูลครู'; document.getElementById('tName').value=TEACHERS[i].name; document.getElementById('tDept').value=TEACHERS[i].dept; const key='teacher'+(String(i+1).padStart(2,'0')); document.getElementById('tPass').value=USERS[key]?.pass||'1234'; document.getElementById('teacherModalOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeTeacherModal(){ document.getElementById('teacherModalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function saveTeacherModal(){
+  const name=document.getElementById('tName').value.trim();
+  const dept=document.getElementById('tDept').value.trim();
+  const pass=document.getElementById('tPass').value.trim()||'1234';
+  if(!name||!dept){showToast('กรุณากรอกชื่อและแผนก','t-red');return;}
+  if(_editTeacherIdx===null){
+    const newId=TEACHERS.length>0?Math.max(...TEACHERS.map(t=>t.id))+1:1;
+    TEACHERS.push({id:newId,name,dept});
+    const key='teacher'+(String(TEACHERS.length).padStart(2,'0'));
+    USERS[key]={pass,name,role:dept,type:'teacher',teacherId:newId,username:key};
+    buildDeptFilter();
+  } else {
+    TEACHERS[_editTeacherIdx].name=name; TEACHERS[_editTeacherIdx].dept=dept;
+    const key='teacher'+(String(_editTeacherIdx+1).padStart(2,'0'));
+    if(USERS[key]){USERS[key].name=name;USERS[key].role=dept;USERS[key].pass=pass;}
+  }
+  closeTeacherModal(); renderManageTeachers(); updateStats(); renderTable(); showToast('บันทึกข้อมูลครูเรียบร้อย','t-green');
+}
+function deleteTeacher(i){
+  if(!confirm(`ลบครู "${TEACHERS[i].name}"?\nข้อมูลเอกสารและคะแนนของครูนี้จะยังคงอยู่ใน localStorage`)) return;
+  TEACHERS.splice(i,1);
+  renderManageTeachers(); buildDeptFilter(); updateStats(); renderTable(); showToast('ลบครูเรียบร้อย','t-green');
+}
+
 // ════ TOAST ════
 function showToast(msg,cls){
   const el=document.getElementById('toast');
@@ -1838,9 +2489,35 @@ function openHelp(type){
   document.body.insertAdjacentHTML('beforeend',html);
 }
 
+// ════ DARK MODE ════
+function toggleDark(){
+  const isDark=document.body.classList.toggle('dark');
+  document.getElementById('darkToggle').classList.toggle('on',isDark);
+  document.getElementById('darkIcon').textContent=isDark?'🌙':'☀️';
+  localStorage.setItem('ra_dark',isDark?'1':'0');
+}
+function initDark(){
+  if(localStorage.getItem('ra_dark')==='1'){
+    document.body.classList.add('dark');
+    const btn=document.getElementById('darkToggle');
+    const ico=document.getElementById('darkIcon');
+    if(btn) btn.classList.add('on');
+    if(ico) ico.textContent='🌙';
+  }
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  initDark();
+  const banner=document.createElement('div');
+  banner.style.cssText='position:fixed;bottom:0;left:0;right:0;background:#1a5c38;color:#fff;font-size:12px;text-align:center;padding:5px;z-index:99999;font-family:Sarabun,sans-serif';
+  banner.innerHTML='💾 โหมดออฟไลน์ – ข้อมูลเก็บในเครื่องนี้เท่านั้น (localStorage) &nbsp;<button onclick="this.parentElement.remove()" style="background:none;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:4px;padding:1px 8px;cursor:pointer;font-size:11px">✕</button>';
+  document.body.appendChild(banner);
+});
+
 // ════ INIT ════
 function init(){
   buildDeptFilter();
+  _lsListeners[LS_EVAL]=[];
+  _lsListeners[LS_DOCS]=[];
   startEvalListener();
   startAllDocsListener();
 }
