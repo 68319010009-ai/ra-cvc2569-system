@@ -84,6 +84,37 @@ body.dark .badge-year{background:#0d2b1a;color:var(--green);border-color:var(--g
 .dark-toggle.on::after{transform:translateX(16px)}
 .dark-toggle-wrap{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2)}
 
+/* ══ EVALUATOR TOGGLE SWITCH ══ */
+.ev-toggle-wrap{display:flex;align-items:center;gap:6px}
+.ev-toggle{position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0}
+.ev-toggle input{opacity:0;width:0;height:0}
+.ev-toggle-slider{position:absolute;cursor:pointer;inset:0;background:#d1d5db;border-radius:24px;transition:.25s}
+.ev-toggle-slider:before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.ev-toggle input:checked+.ev-toggle-slider{background:#1a5c38}
+.ev-toggle input:checked+.ev-toggle-slider:before{transform:translateX(18px)}
+.ev-toggle-label{font-size:11px;font-weight:600;min-width:32px}
+.ev-toggle-label.on{color:#1a5c38}
+.ev-toggle-label.off{color:#9ca3af}
+
+/* ══ DEADLINE / LOCK SYSTEM ══ */
+.deadline-banner{display:flex;align-items:center;gap:12px;padding:12px 18px;border-radius:10px;margin-bottom:16px;font-size:13px;border:1px solid}
+.deadline-banner.open{background:#e8f5ed;border-color:#a8d9b8;color:#0f3d26}
+.deadline-banner.warning{background:#fff8e1;border-color:#f0c44a;color:#7d5700}
+.deadline-banner.locked{background:#fadbd8;border-color:#f1948a;color:#7b241c}
+.deadline-banner .dl-icon{font-size:22px;flex-shrink:0}
+.deadline-banner .dl-info{flex:1}
+.deadline-banner .dl-title{font-weight:700;font-size:14px}
+.deadline-banner .dl-sub{font-size:12px;margin-top:2px;opacity:.85}
+.deadline-banner .dl-countdown{font-size:18px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.lock-overlay{position:relative}
+.lock-overlay::after{content:'🔒 หมดเขตส่งเอกสารแล้ว';position:absolute;inset:0;background:rgba(250,219,216,.92);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#7b241c;border-radius:8px;pointer-events:none;z-index:10}
+.add-doc-locked{pointer-events:none;opacity:.45;user-select:none;position:relative}
+.add-doc-locked::before{content:'🔒 ปิดรับเอกสาร';position:absolute;inset:0;background:rgba(250,219,216,.88);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#7b241c;border-radius:8px;z-index:5;pointer-events:none}
+.deadline-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;white-space:nowrap}
+.dl-chip-open{background:#e8f5ed;color:#1a5c38;border:1px solid #a8d9b8}
+.dl-chip-warn{background:#fff8e1;color:#b7770d;border:1px solid #f0c44a}
+.dl-chip-locked{background:#fadbd8;color:#c0392b;border:1px solid #f1948a}
+
 /* ══ LOGIN ══ */
 #loginPage{display:flex;min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f3d26,#1a5c38 50%,#2d8a5e)}
 .login-card{background:#fff;border-radius:16px;padding:40px 36px;width:100%;max-width:420px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
@@ -573,6 +604,7 @@ textarea.fc{resize:vertical;min-height:70px}
         <div class="page-header">
           <div><h2>🏠 หน้าหลัก</h2><p>ภาพรวมเอกสารและสถานะการประเมิน ปีการศึกษา 2569</p></div>
         </div>
+        <div id="homDeadlineBanner"></div>
         <!-- สถิติเอกสาร -->
         <div class="t-stats-grid" id="tStatsGrid"></div>
 
@@ -589,7 +621,7 @@ textarea.fc{resize:vertical;min-height:70px}
 
         <div class="card" style="margin-bottom:16px">
           <div class="card-head"><span>⚡ เมนูลัด</span></div>
-          <div class="quick-actions">
+          <div class="quick-actions" id="quickActionsArea">
             <button class="q-btn" onclick="showTeacherPage('eval','1')">➕ เพิ่มเอกสาร ด้านที่ 1</button>
             <button class="q-btn" onclick="showTeacherPage('eval','2')">➕ เพิ่มเอกสาร ด้านที่ 2</button>
             <button class="q-btn" onclick="showTeacherPage('eval','3')">➕ เพิ่มเอกสาร ด้านที่ 3</button>
@@ -607,6 +639,7 @@ textarea.fc{resize:vertical;min-height:70px}
         <div class="page-header">
           <div><h2>📄 เพิ่มเอกสารประเมิน</h2><p>บันทึกเอกสารหลักฐานประกอบการประเมิน</p></div>
         </div>
+        <div id="evalDeadlineBanner"></div>
         <div class="tab-nav" id="evalTabNav"></div>
         <div id="evalTabContents"></div>
       </div>
@@ -615,9 +648,10 @@ textarea.fc{resize:vertical;min-height:70px}
         <div class="page-header">
           <div><h2>📋 รายการเอกสารทั้งหมด</h2></div>
           <div class="header-actions">
-            <button class="btn btn-green" onclick="showTeacherPage('eval')">➕ เพิ่มเอกสาร</button>
+            <button class="btn btn-green" id="btnAddDocViewdocs" onclick="showTeacherPage('eval')">➕ เพิ่มเอกสาร</button>
           </div>
         </div>
+        <div id="viewDocsDeadlineBanner"></div>
         <div id="viewDocsArea"></div>
       </div>
 
@@ -649,6 +683,8 @@ textarea.fc{resize:vertical;min-height:70px}
           <button class="tab-btn active" onclick="switchManageTab('categories')">📂 หัวหลัก/หัวย่อย</button>
           <button class="tab-btn" onclick="switchManageTab('criteria')">📊 เกณฑ์คะแนน</button>
           <button class="tab-btn" onclick="switchManageTab('teachers')">👥 ข้อมูลครู</button>
+          <button class="tab-btn" onclick="switchManageTab('evaluators')">🧑‍💼 ผู้ประเมิน</button>
+          <button class="tab-btn" onclick="switchManageTab('deadline')">📅 กำหนดวันส่ง</button>
         </div>
 
         <!-- แท็บ: หัวหลัก/หัวย่อย -->
@@ -678,6 +714,56 @@ textarea.fc{resize:vertical;min-height:70px}
               <button class="btn btn-green btn-sm" onclick="openAddTeacherModal()">+ เพิ่มครู</button>
             </div>
             <div id="manageTeacherList" style="padding:0"></div>
+          </div>
+        </div>
+
+        <!-- แท็บ: ผู้ประเมิน -->
+        <div class="tab-content" id="mtab-evaluators">
+          <div class="card">
+            <div class="card-head"><span>🧑‍💼 รายชื่อผู้ประเมิน</span>
+              <button class="btn btn-green btn-sm" onclick="openAddEvaluatorModal()">+ เพิ่มผู้ประเมิน</button>
+            </div>
+            <div id="manageEvaluatorList" style="padding:0"></div>
+          </div>
+        </div>
+
+        <!-- แท็บ: กำหนดวันส่ง -->
+        <div class="tab-content" id="mtab-deadline">
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-head"><span>📅 ตั้งค่ากำหนดวันส่งเอกสาร</span></div>
+            <div class="card-body">
+              <p style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.7">กำหนดช่วงเวลาที่ครูสามารถอัปโหลดเอกสารได้ เมื่อเลยกำหนดแล้วปุ่มเพิ่มเอกสารจะถูกล็อค ครูจะไม่สามารถส่งเพิ่มได้อีก</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+                <div class="form-grp">
+                  <label style="font-weight:600;font-size:13px;display:block;margin-bottom:6px;color:var(--text2)">📅 วันที่เริ่มรับเอกสาร</label>
+                  <input type="datetime-local" id="dlStart" class="fc" style="width:100%">
+                  <div style="font-size:11px;color:var(--text3);margin-top:4px">เว้นว่างถ้าเปิดรับทันที</div>
+                </div>
+                <div class="form-grp">
+                  <label style="font-weight:600;font-size:13px;display:block;margin-bottom:6px;color:var(--text2)">🔒 วันที่ปิดรับเอกสาร (Deadline)</label>
+                  <input type="datetime-local" id="dlEnd" class="fc" style="width:100%">
+                  <div style="font-size:11px;color:var(--text3);margin-top:4px">เว้นว่างถ้าไม่มีกำหนด</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:12px 16px;background:var(--green-l);border-radius:8px;border:1px solid var(--green-m)">
+                <label class="ev-toggle" title="ล็อคทันทีโดยไม่สนใจวันที่">
+                  <input type="checkbox" id="dlForcelock" onchange="saveDeadlineSettings()">
+                  <span class="ev-toggle-slider"></span>
+                </label>
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--green-d)">🔒 ล็อคทันที (Manual Lock)</div>
+                  <div style="font-size:12px;color:var(--text2);margin-top:2px">เปิดสวิตช์นี้เพื่อล็อคการส่งเอกสารทันที โดยไม่สนใจวันที่ตั้งไว้</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px">
+                <button class="btn btn-green" onclick="saveDeadlineSettings()">💾 บันทึกการตั้งค่า</button>
+                <button class="btn btn-ghost" onclick="clearDeadlineSettings()">🗑 ล้างการตั้งค่า</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span>📊 สถานะปัจจุบัน</span></div>
+            <div id="deadlineStatusBox" style="padding:16px 18px"></div>
           </div>
         </div>
       </div>
@@ -748,6 +834,23 @@ textarea.fc{resize:vertical;min-height:70px}
     <div class="modal-foot">
       <button class="btn-cancel" onclick="closeTeacherModal()">ยกเลิก</button>
       <button class="btn-save-eval" onclick="saveTeacherModal()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: เพิ่ม/แก้ไข ผู้ประเมิน -->
+<div class="modal-overlay" id="evaluatorModalOverlay">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head"><div><h2 id="evaluatorModalTitle">เพิ่มผู้ประเมิน</h2></div><button class="modal-close" onclick="closeEvaluatorModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grp"><label>ชื่อ-นามสกุล / ตำแหน่ง</label><input type="text" id="evName" class="fc" placeholder="เช่น รองผู้อำนวยการฝ่ายวิชาการ"></div>
+      <div class="form-grp" style="margin-top:10px"><label>ตำแหน่ง (แสดงในระบบ)</label><input type="text" id="evRole" class="fc" placeholder="เช่น รอง 1, หัวหน้าแผนก"></div>
+      <div class="form-grp" style="margin-top:10px"><label>ชื่อผู้ใช้ (username)</label><input type="text" id="evUsername" class="fc" placeholder="เช่น ev5, vp1"></div>
+      <div class="form-grp" style="margin-top:10px"><label>รหัสผ่าน</label><input type="text" id="evPass" class="fc" value="1234"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeEvaluatorModal()">ยกเลิก</button>
+      <button class="btn-save-eval" onclick="saveEvaluatorModal()">บันทึก</button>
     </div>
   </div>
 </div>
@@ -1076,21 +1179,25 @@ var pieChartInst  = null;
 var toastTimer    = null;
 
 // ════ HELPER FUNCTIONS ════
+function activeEvaluators(){
+  return EVALUATORS.filter(k=>USERS[k]?.active!==false);
+}
 function getAvgScore(tid){
   const evs = evalData[tid];
   if(!evs) return null;
-  const scores = EVALUATORS.map(e=>evs[e]?.score).filter(s=>s!=null);
+  const scores = activeEvaluators().map(e=>evs[e]?.score).filter(s=>s!=null);
   return scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*100)/100 : null;
 }
 function isComplete(tid){
   const evs = evalData[tid];
   if(!evs) return false;
-  return EVALUATORS.every(e=>evs[e]?.score!=null);
+  const active = activeEvaluators();
+  return active.length>0 && active.every(e=>evs[e]?.score!=null);
 }
 function hasAnyEval(tid){
   const evs = evalData[tid];
   if(!evs) return false;
-  return EVALUATORS.some(e=>evs[e]?.score!=null);
+  return activeEvaluators().some(e=>evs[e]?.score!=null);
 }
 function getGrade(s){
   if(s===null||s===undefined) return null;
@@ -1302,7 +1409,7 @@ function showTeacherPage(p,tab){
   document.getElementById('page-'+(map[p]||'teacher-home'))?.classList.add('active');
   document.getElementById('snav-'+p)?.classList.add('active');
   if(p==='home') renderTeacherDashboard();
-  if(p==='eval') renderEvaluation(tab||activeEvalTab);
+  if(p==='eval'){ renderEvaluation(tab||activeEvalTab); renderDeadlineBanner('evalDeadlineBanner'); }
   if(p==='viewdocs') renderViewDocs();
   if(p==='profile'){
     const usr=USERS[currentUser];
@@ -1332,7 +1439,7 @@ function updateStats(){
   document.getElementById('stAvg').textContent=avg!=null?avg.toFixed(1):'–';
   document.getElementById('progFill').style.width=pct+'%';
   document.getElementById('progPct').textContent=pct+'%';
-  document.getElementById('stEvCount').textContent=EVALUATORS.length;
+  document.getElementById('stEvCount').textContent=activeEvaluators().length;
 }
 function updateChart(){
   const counts={ex:0,vg:0,gd:0,av:0,fl:0,none:0};
@@ -1396,7 +1503,7 @@ function renderTable(){
     const barW=avg!=null?Math.min(avg,100):0;
     const teacherKey='teacher'+(String(t.id).padStart(2,'0'));
     const docCount=getTeacherDocCount(teacherKey);
-    const dots=EVALUATORS.map(e=>{
+    const dots=activeEvaluators().map(e=>{
       const has=evalData[t.id]&&evalData[t.id][e]?.score!=null;
       const tip=USERS[e].name+(has?' ('+evalData[t.id][e].score.toFixed(1)+')':' – ยังไม่ประเมิน');
       return `<div class="ev-dot${has?' filled':''}" title="${tip}"></div>`;
@@ -1424,6 +1531,28 @@ function renderTable(){
 
 // ════ TEACHER DASHBOARD ════
 function renderTeacherDashboard(){
+  // แสดง deadline banner ที่ teacher-home ด้วย
+  renderDeadlineBanner('homDeadlineBanner');
+
+  // อัปเดตเมนูลัดตามสถานะ deadline
+  const locked = isSubmissionLocked() || isSubmissionBefore();
+  const qa = document.getElementById('quickActionsArea');
+  if(qa){
+    if(locked){
+      qa.innerHTML=`
+        <button class="q-btn" onclick="showTeacherPage('eval','1')" style="opacity:.4;cursor:not-allowed" disabled>🔒 ด้านที่ 1</button>
+        <button class="q-btn" onclick="showTeacherPage('eval','2')" style="opacity:.4;cursor:not-allowed" disabled>🔒 ด้านที่ 2</button>
+        <button class="q-btn" onclick="showTeacherPage('eval','3')" style="opacity:.4;cursor:not-allowed" disabled>🔒 ด้านที่ 3</button>
+        <button class="q-btn green" onclick="showTeacherPage('viewdocs')">👁 ดูเอกสารทั้งหมด</button>`;
+    } else {
+      qa.innerHTML=`
+        <button class="q-btn" onclick="showTeacherPage('eval','1')">➕ เพิ่มเอกสาร ด้านที่ 1</button>
+        <button class="q-btn" onclick="showTeacherPage('eval','2')">➕ เพิ่มเอกสาร ด้านที่ 2</button>
+        <button class="q-btn" onclick="showTeacherPage('eval','3')">➕ เพิ่มเอกสาร ด้านที่ 3</button>
+        <button class="q-btn green" onclick="showTeacherPage('viewdocs')">👁 ดูเอกสารทั้งหมด</button>`;
+    }
+  }
+
   const docs=getTeacherDocs();
   const allDocs=Object.values(docs);
   const total=allDocs.length;
@@ -1492,6 +1621,7 @@ var activeEvalTab='1';
 function renderEvaluation(tab){
   activeEvalTab=tab||'1';
   const tabLabels={'1':'ด้านที่ 1','2':'ด้านที่ 2','3':'ด้านที่ 3','activity':'การมีส่วนร่วม','ethics':'คุณธรรม จริยธรรม'};
+  const locked = isSubmissionLocked() || isSubmissionBefore();
   document.getElementById('evalTabNav').innerHTML=
     DOC_CATEGORIES.map(cat=>`<button class="tab-btn ${cat.code===activeEvalTab?'active':''}" onclick="switchEvalTab('${cat.code}')">${tabLabels[cat.code]||cat.code}</button>`).join('')+
     `<button class="tab-btn tab-btn-show" onclick="showTeacherPage('viewdocs')">แสดงทั้งหมด</button>`;
@@ -1503,7 +1633,7 @@ function renderEvaluation(tab){
       <div class="cat-header">📂 ${cat.name}</div>
       ${cat.items.map(item=>{
         const itemDocs=allDocs.filter(d=>d.itemId===item.id);
-        return renderEvalItem(item,itemDocs);
+        return renderEvalItem(item,itemDocs,locked);
       }).join('')}
     </div>
   `).join('');
@@ -1518,29 +1648,32 @@ function switchEvalTab(code){
   document.querySelectorAll('.tab-content').forEach(tc=>tc.classList.remove('active'));
   document.getElementById('etab-'+code)?.classList.add('active');
 }
-function renderEvalItem(item,docs){
+function renderEvalItem(item,docs,locked){
   const rows=docs.length
     ?docs.map((d,i)=>{
+      const editBtn = locked
+        ? `<span style="font-size:11px;color:var(--text3);padding:4px 10px">🔒 ล็อค</span>`
+        : `<button class="btn-do btn-edit" style="font-size:11px;padding:4px 10px;color:var(--blue);border-color:var(--blue);margin-right:4px" onclick="editDocFile('${d._key}',${item.id})">✏️ แก้ไข PDF</button>
+           <button class="btn-do btn-edit" style="font-size:11px;padding:4px 10px;color:var(--red);border-color:var(--red)" onclick="deleteDocV('${d._key}')">🗑 ลบ</button>`;
       return `<tr>
         <td style="text-align:center">${i+1}</td>
         <td>${esc(d.docName)}</td>
         <td>${d.docDetail?esc(d.docDetail):'–'}</td>
         <td>${d.fileData?`<button class="file-link" style="background:none;border:none;cursor:pointer;padding:0" onclick='openFileBlob(${JSON.stringify(d.fileData)},"pdf")'><span class="file-tag file-tag-pdf">📄 PDF</span></button>`:'–'}</td>
-        <td style="white-space:nowrap">
-          <button class="btn-do btn-edit" style="font-size:11px;padding:4px 10px;color:var(--blue);border-color:var(--blue);margin-right:4px" onclick="editDocFile('${d._key}',${item.id})">✏️ แก้ไข PDF</button>
-          <button class="btn-do btn-edit" style="font-size:11px;padding:4px 10px;color:var(--red);border-color:var(--red)" onclick="deleteDocV('${d._key}')">🗑 ลบ</button>
-        </td>
+        <td style="white-space:nowrap">${editBtn}</td>
       </tr>`;
     }).join('')
     :`<tr><td colspan="5" class="no-data" style="padding:20px">ยังไม่มีเอกสาร</td></tr>`;
 
-  return `<div class="eval-section">
-    <div class="eval-sec-header">
-      <span>${item.code} ${item.name}</span>
-      <span class="doc-badge">${docs.length} รายการ</span>
-    </div>
-    <div class="eval-sec-body">
-      <div class="add-doc-area">
+  const addArea = locked
+    ? `<div style="background:#fadbd8;border:1px solid #f1948a;border-radius:8px;padding:14px 18px;display:flex;align-items:center;gap:12px;color:#7b241c;font-size:13px;font-weight:600">
+        <span style="font-size:20px">🔒</span>
+        <div>
+          <div>ปิดรับเอกสารแล้ว</div>
+          <div style="font-size:11px;font-weight:400;margin-top:3px;opacity:.8">ไม่สามารถเพิ่มหรือแก้ไขเอกสารได้ในขณะนี้</div>
+        </div>
+      </div>`
+    : `<div class="add-doc-area">
         <div class="form-hint">📌 เพิ่มเอกสารสำหรับ <strong class="text-orange">${item.code} ${item.name}</strong></div>
         <div class="form-row">
           <div class="form-col flex-1">
@@ -1565,7 +1698,18 @@ function renderEvalItem(item,docs){
             <button class="btn btn-green" onclick="addDoc(${item.id})">➕ เพิ่ม</button>
           </div>
         </div>
+      </div>`;
+
+  return `<div class="eval-section">
+    <div class="eval-sec-header">
+      <span>${item.code} ${item.name}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="doc-badge">${docs.length} รายการ</span>
+        ${locked?`<span class="deadline-chip dl-chip-locked">🔒 ปิดรับแล้ว</span>`:''}
       </div>
+    </div>
+    <div class="eval-sec-body">
+      ${addArea}
       <div class="doc-tbl-wrap" style="margin-top:12px">
         <table class="doc-tbl">
           <thead><tr><th>#</th><th>ชื่อเอกสาร</th><th>รายละเอียด</th><th>ไฟล์</th><th>จัดการ</th></tr></thead>
@@ -1578,6 +1722,16 @@ function renderEvalItem(item,docs){
 
 // ════ TEACHER: ADD DOC ════
 function addDoc(itemId){
+  // ตรวจสอบ deadline ก่อน
+  if(isSubmissionLocked()){
+    showToast('🔒 หมดเขตส่งเอกสารแล้ว ไม่สามารถเพิ่มได้','t-red');
+    return;
+  }
+  if(isSubmissionBefore()){
+    const cfg=getDeadlineSettings();
+    showToast(`⏳ ยังไม่ถึงเวลาเปิดรับ (เปิด ${formatDateTH(cfg.start)})`,'t-red');
+    return;
+  }
   const nameEl=document.getElementById('dn_'+itemId);
   const detailEl=document.getElementById('dd_'+itemId);
   const fileEl=document.getElementById('df_'+itemId);
@@ -1652,6 +1806,26 @@ function saveDoc(uid,itemId,docName,docDetail,fileData,fileType,cat,teacherInfo,
 
 // ════ TEACHER: VIEW DOCS ════
 function renderViewDocs(){
+  // แสดง deadline banner ในหน้านี้ด้วย
+  renderDeadlineBanner('viewDocsDeadlineBanner');
+
+  // อัปเดตปุ่มเพิ่มเอกสาร
+  const addBtn = document.getElementById('btnAddDocViewdocs');
+  const locked = isSubmissionLocked() || isSubmissionBefore();
+  if(addBtn){
+    if(locked){
+      addBtn.disabled = true;
+      addBtn.style.opacity = '0.45';
+      addBtn.style.cursor = 'not-allowed';
+      addBtn.innerHTML = '🔒 ปิดรับเอกสาร';
+    } else {
+      addBtn.disabled = false;
+      addBtn.style.opacity = '';
+      addBtn.style.cursor = '';
+      addBtn.innerHTML = '➕ เพิ่มเอกสาร';
+    }
+  }
+
   const docs=getTeacherDocs();
   const allDocs=Object.entries(docs).map(([k,v])=>({...v,_key:k}));
   const area=document.getElementById('viewDocsArea');
@@ -1680,6 +1854,7 @@ function renderViewDocs(){
   }).join('');
 }
 function deleteDocV(docKey){
+  if(isSubmissionLocked()||isSubmissionBefore()){showToast('🔒 ปิดรับเอกสารแล้ว ไม่สามารถแก้ไข/ลบได้','t-red');return;}
   if(!confirm('ยืนยันการลบ?'))return;
   const uid=USERS[currentUser].username;
   const allDocs=lsGet(LS_DOCS)||{};
@@ -1691,6 +1866,7 @@ function deleteDocV(docKey){
   renderViewDocs();
 }
 function editDocFile(docKey,itemId){
+  if(isSubmissionLocked()||isSubmissionBefore()){showToast('🔒 ปิดรับเอกสารแล้ว ไม่สามารถแก้ไขได้','t-red');return;}
   // สร้าง input file ชั่วคราว
   const inp=document.createElement('input');
   inp.type='file';inp.accept='.pdf,application/pdf';
@@ -2251,8 +2427,9 @@ var _editCritIdx=null, _editCritSecIdx=null;
 var _editTeacherIdx=null;
 
 function switchManageTab(tab){
+  const tabs=['categories','criteria','teachers','evaluators','deadline'];
   document.querySelectorAll('#manageTabNav .tab-btn').forEach((b,i)=>{
-    b.classList.toggle('active',['categories','criteria','teachers'][i]===tab);
+    b.classList.toggle('active',tabs[i]===tab);
   });
   document.querySelectorAll('#page-admin-manage .tab-content').forEach(tc=>{
     tc.classList.toggle('active',tc.id==='mtab-'+tab);
@@ -2260,10 +2437,15 @@ function switchManageTab(tab){
   if(tab==='categories') renderManageCategories();
   if(tab==='criteria') renderManageCriteria();
   if(tab==='teachers') renderManageTeachers();
+  if(tab==='evaluators') renderManageEvaluators();
+  if(tab==='deadline') renderDeadlineTab();
 }
 
 function renderManagePage(){
   renderManageCategories();
+  renderManageCriteria();
+  renderManageTeachers();
+  renderManageEvaluators();
 }
 
 // ── หัวหลัก/หัวย่อย ──
@@ -2454,6 +2636,285 @@ function deleteTeacher(i){
   renderManageTeachers(); buildDeptFilter(); updateStats(); renderTable(); showToast('ลบครูเรียบร้อย','t-green');
 }
 
+// ── ผู้ประเมิน ──
+var _editEvaluatorIdx=null;
+function renderManageEvaluators(){
+  const el=document.getElementById('manageEvaluatorList');
+  if(!el) return;
+  let html=`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>#</th><th>ชื่อ-นามสกุล</th><th>ตำแหน่ง</th><th>username</th><th style="text-align:center">เปิด/ปิด</th><th>จัดการ</th></tr></thead><tbody>`;
+  EVALUATORS.forEach((key,i)=>{
+    const u=USERS[key];
+    if(!u) return;
+    const isActive = u.active !== false; // default active=true
+    const rowStyle = isActive ? '' : 'opacity:0.5';
+    html+=`<tr style="${rowStyle}">
+      <td style="text-align:center;color:var(--text3)">${i+1}</td>
+      <td><span style="font-weight:600">${esc(u.name)}</span>${!isActive?'<span style="font-size:10px;margin-left:6px;padding:2px 7px;border-radius:10px;background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb">ปิดใช้งาน</span>':''}</td>
+      <td style="font-size:12px;color:var(--text2)">${esc(u.role)}</td>
+      <td style="font-size:12px;color:var(--blue)">${key}</td>
+      <td style="text-align:center">
+        <div class="ev-toggle-wrap" style="justify-content:center">
+          <label class="ev-toggle" title="${isActive?'คลิกเพื่อปิดใช้งาน':'คลิกเพื่อเปิดใช้งาน'}">
+            <input type="checkbox" ${isActive?'checked':''} onchange="toggleEvaluatorActive(${i},this.checked)">
+            <span class="ev-toggle-slider"></span>
+          </label>
+          <span class="ev-toggle-label ${isActive?'on':'off'}" id="evToggleLbl_${i}">${isActive?'เปิด':'ปิด'}</span>
+        </div>
+      </td>
+      <td style="white-space:nowrap">
+        <button class="btn-do btn-edit" style="font-size:11px;padding:3px 9px;color:var(--blue);border-color:var(--blue)" onclick="openEditEvaluatorModal(${i})">✏️ แก้ไข</button>
+        <button class="btn-do btn-edit" style="font-size:11px;padding:3px 9px;color:var(--red);border-color:var(--red)" onclick="deleteEvaluator(${i})">🗑 ลบ</button>
+      </td>
+    </tr>`;
+  });
+  html+='</tbody></table></div>';
+  if(!EVALUATORS.length) html='<div style="padding:20px;text-align:center;color:var(--text3)">ยังไม่มีผู้ประเมิน</div>';
+  el.innerHTML=html;
+}
+function toggleEvaluatorActive(i, active){
+  const key=EVALUATORS[i];
+  if(!USERS[key]) return;
+  const activeCount = EVALUATORS.filter(k=>USERS[k]?.active!==false).length;
+  if(!active && activeCount<=1){
+    showToast('ต้องมีผู้ประเมินที่เปิดใช้งานอย่างน้อย 1 คน','t-red');
+    renderManageEvaluators(); // reset UI
+    return;
+  }
+  USERS[key].active = active;
+  const lbl = document.getElementById('evToggleLbl_'+i);
+  if(lbl){ lbl.textContent=active?'เปิด':'ปิด'; lbl.className='ev-toggle-label '+(active?'on':'off'); }
+  const row = lbl?.closest('tr');
+  if(row) row.style.opacity = active?'':'0.5';
+  const nameCell = row?.cells[1];
+  if(nameCell){
+    const badge=nameCell.querySelector('span[style*="ปิดใช้งาน"]');
+    if(active && badge) badge.remove();
+    else if(!active && !badge){
+      nameCell.insertAdjacentHTML('beforeend','<span style="font-size:10px;margin-left:6px;padding:2px 7px;border-radius:10px;background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb">ปิดใช้งาน</span>');
+    }
+  }
+  updateStats();
+  renderTable();
+  showToast(active?`เปิดใช้งาน "${USERS[key].name}" แล้ว`:`ปิดใช้งาน "${USERS[key].name}" แล้ว`, active?'t-green':'t-dark');
+}
+function openAddEvaluatorModal(){
+  _editEvaluatorIdx=null;
+  document.getElementById('evaluatorModalTitle').textContent='เพิ่มผู้ประเมิน';
+  document.getElementById('evName').value='';
+  document.getElementById('evRole').value='';
+  document.getElementById('evUsername').value='';
+  document.getElementById('evUsername').readOnly=false;
+  document.getElementById('evPass').value='1234';
+  document.getElementById('evaluatorModalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function openEditEvaluatorModal(i){
+  _editEvaluatorIdx=i;
+  const key=EVALUATORS[i];
+  const u=USERS[key];
+  document.getElementById('evaluatorModalTitle').textContent='แก้ไขผู้ประเมิน';
+  document.getElementById('evName').value=u.name;
+  document.getElementById('evRole').value=u.role;
+  document.getElementById('evUsername').value=key;
+  document.getElementById('evUsername').readOnly=true;
+  document.getElementById('evPass').value=u.pass||'1234';
+  document.getElementById('evaluatorModalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeEvaluatorModal(){
+  document.getElementById('evaluatorModalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function saveEvaluatorModal(){
+  const name=document.getElementById('evName').value.trim();
+  const role=document.getElementById('evRole').value.trim();
+  const username=document.getElementById('evUsername').value.trim().replace(/\s+/g,'');
+  const pass=document.getElementById('evPass').value.trim()||'1234';
+  if(!name||!role||!username){showToast('กรุณากรอกข้อมูลให้ครบ','t-red');return;}
+  if(_editEvaluatorIdx===null){
+    // ตรวจ username ซ้ำ
+    if(USERS[username]){showToast('username นี้มีในระบบแล้ว','t-red');return;}
+    USERS[username]={pass,name,role,type:'evaluator'};
+    EVALUATORS.push(username);
+  } else {
+    const key=EVALUATORS[_editEvaluatorIdx];
+    USERS[key].name=name;
+    USERS[key].role=role;
+    USERS[key].pass=pass;
+  }
+  closeEvaluatorModal();
+  renderManageEvaluators();
+  updateStats();
+  renderTable();
+  showToast('บันทึกผู้ประเมินเรียบร้อย','t-green');
+}
+function deleteEvaluator(i){
+  if(EVALUATORS.length<=1){showToast('ต้องมีผู้ประเมินอย่างน้อย 1 คน','t-red');return;}
+  const key=EVALUATORS[i];
+  if(!confirm(`ลบผู้ประเมิน "${USERS[key]?.name}"?\nคะแนนที่ประเมินไว้จะยังคงอยู่ใน localStorage`)) return;
+  delete USERS[key];
+  EVALUATORS.splice(i,1);
+  renderManageEvaluators();
+  updateStats();
+  renderTable();
+  showToast('ลบผู้ประเมินเรียบร้อย','t-green');
+}
+
+// ════ DEADLINE SYSTEM ════
+const LS_DEADLINE = 'ra_cvc2569_deadline';
+
+function getDeadlineSettings(){
+  return lsGet(LS_DEADLINE) || {start:'', end:'', forceLock:false};
+}
+
+function getDeadlineStatus(){
+  const cfg = getDeadlineSettings();
+  const now = Date.now();
+  if(cfg.forceLock) return 'locked';
+  const start = cfg.start ? new Date(cfg.start).getTime() : null;
+  const end   = cfg.end   ? new Date(cfg.end).getTime()   : null;
+  if(start && now < start) return 'before';
+  if(end && now > end) return 'locked';
+  if(end){
+    const diff = end - now;
+    if(diff < 3*24*60*60*1000) return 'warning'; // within 3 days
+  }
+  return 'open';
+}
+
+function isSubmissionLocked(){
+  return getDeadlineStatus() === 'locked';
+}
+
+function isSubmissionBefore(){
+  return getDeadlineStatus() === 'before';
+}
+
+function formatDateTH(dt){
+  if(!dt) return '—';
+  return new Date(dt).toLocaleString('th-TH',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function countdownText(endStr){
+  if(!endStr) return '';
+  const diff = new Date(endStr).getTime() - Date.now();
+  if(diff <= 0) return 'หมดเขตแล้ว';
+  const d = Math.floor(diff/86400000);
+  const h = Math.floor((diff%86400000)/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  if(d > 0) return `เหลือ ${d} วัน ${h} ชม.`;
+  if(h > 0) return `เหลือ ${h} ชม. ${m} นาที`;
+  return `เหลือ ${m} นาที`;
+}
+
+function renderDeadlineBanner(containerId){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  const cfg = getDeadlineSettings();
+  const status = getDeadlineStatus();
+  if(!cfg.end && !cfg.start && !cfg.forceLock){
+    el.innerHTML='';
+    return;
+  }
+  let icon, cls, title, sub, extraHtml='';
+  if(status==='locked'){
+    icon='🔒'; cls='locked';
+    title = cfg.forceLock ? 'ล็อคโดยผู้ดูแลระบบ' : 'หมดเขตส่งเอกสารแล้ว';
+    sub = cfg.end ? `ปิดรับเมื่อ ${formatDateTH(cfg.end)}` : 'ระบบถูกล็อคโดยผู้ดูแล ไม่สามารถเพิ่มเอกสารได้';
+    extraHtml = `<div style="background:rgba(192,57,43,.12);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;color:#7b241c;white-space:nowrap">ปิดรับแล้ว</div>`;
+  } else if(status==='before'){
+    icon='⏳'; cls='warning';
+    title = 'ยังไม่เปิดรับเอกสาร';
+    sub = `เปิดรับวันที่ ${formatDateTH(cfg.start)}`;
+    if(cfg.end) sub += ` · ปิดรับ ${formatDateTH(cfg.end)}`;
+  } else {
+    const ct = cfg.end ? (()=>{
+      const diff=new Date(cfg.end).getTime()-Date.now();
+      if(diff<=0) return null;
+      return {d:Math.floor(diff/86400000),h:Math.floor((diff%86400000)/3600000),m:Math.floor((diff%3600000)/60000)};
+    })() : null;
+    if(status==='warning'){ icon='⚠️'; cls='warning'; title='ใกล้หมดเขตส่งเอกสาร!'; }
+    else { icon='📅'; cls='open'; title='กำหนดส่งเอกสาร'; }
+    sub = cfg.end ? `ปิดรับวันที่ ${formatDateTH(cfg.end)}` : 'ไม่มีกำหนดปิด';
+    if(ct){
+      const urgentColor=ct.d===0?'#c0392b':ct.d<=1?'#e65100':ct.d<=3?'#b7770d':'#1a5c38';
+      const urgentBg=ct.d===0?'#fadbd8':ct.d<=1?'#fff3e0':ct.d<=3?'#fff8e1':'#e8f5ed';
+      extraHtml=`<div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+        ${ct.d>0?`<div style="background:${urgentBg};border:1px solid ${urgentColor}44;border-radius:8px;padding:6px 12px;text-align:center;min-width:52px">
+          <div style="font-size:20px;font-weight:800;color:${urgentColor};line-height:1">${ct.d}</div>
+          <div style="font-size:10px;color:${urgentColor};font-weight:600;margin-top:2px">วัน</div>
+        </div>`:''}
+        <div style="background:${urgentBg};border:1px solid ${urgentColor}44;border-radius:8px;padding:6px 12px;text-align:center;min-width:52px">
+          <div style="font-size:20px;font-weight:800;color:${urgentColor};line-height:1">${ct.h}</div>
+          <div style="font-size:10px;color:${urgentColor};font-weight:600;margin-top:2px">ชม.</div>
+        </div>
+        <div style="background:${urgentBg};border:1px solid ${urgentColor}44;border-radius:8px;padding:6px 12px;text-align:center;min-width:52px">
+          <div style="font-size:20px;font-weight:800;color:${urgentColor};line-height:1">${ct.m}</div>
+          <div style="font-size:10px;color:${urgentColor};font-weight:600;margin-top:2px">นาที</div>
+        </div>
+      </div>`;
+    }
+  }
+  el.innerHTML=`<div class="deadline-banner ${cls}" style="margin-bottom:14px">
+    <div class="dl-icon">${icon}</div>
+    <div class="dl-info"><div class="dl-title">${title}</div><div class="dl-sub">${sub}</div></div>
+    ${extraHtml}
+  </div>`;
+}
+
+function renderDeadlineTab(){
+  const cfg = getDeadlineSettings();
+  // Set form values
+  const dlStart = document.getElementById('dlStart');
+  const dlEnd   = document.getElementById('dlEnd');
+  const dlForce = document.getElementById('dlForcelock');
+  if(dlStart) dlStart.value = cfg.start||'';
+  if(dlEnd)   dlEnd.value   = cfg.end||'';
+  if(dlForce) dlForce.checked = !!cfg.forceLock;
+  // Render status box
+  const box = document.getElementById('deadlineStatusBox');
+  if(!box) return;
+  const status = getDeadlineStatus();
+  const statusMap = {
+    open:    {icon:'✅', label:'เปิดรับเอกสาร',        color:'#1a5c38', bg:'#e8f5ed'},
+    warning: {icon:'⚠️', label:'ใกล้หมดเขต',           color:'#b7770d', bg:'#fff8e1'},
+    locked:  {icon:'🔒', label:'ปิดรับ / ล็อคแล้ว',   color:'#c0392b', bg:'#fadbd8'},
+    before:  {icon:'⏳', label:'ยังไม่เปิดรับ',         color:'#2980b9', bg:'#d6eaf8'},
+  };
+  const s = statusMap[status]||statusMap.open;
+  box.innerHTML=`
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="background:${s.bg};color:${s.color};border-radius:10px;padding:12px 20px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px">
+        <span style="font-size:22px">${s.icon}</span> ${s.label}
+      </div>
+      <div style="font-size:13px;color:var(--text2)">
+        ${cfg.start?`<div>🕐 เปิดรับ: <strong>${formatDateTH(cfg.start)}</strong></div>`:'<div>🕐 เปิดรับ: <strong>ทันที (ไม่กำหนด)</strong></div>'}
+        ${cfg.end?`<div>🔒 ปิดรับ: <strong>${formatDateTH(cfg.end)}</strong></div>`:'<div>🔒 ปิดรับ: <strong>ไม่มีกำหนด</strong></div>'}
+        ${cfg.forceLock?'<div style="color:#c0392b;font-weight:700">⚠️ Manual Lock เปิดอยู่</div>':''}
+        ${status==='warning'?`<div style="color:#b7770d;font-weight:700">⏱ ${countdownText(cfg.end)}</div>`:''}
+      </div>
+    </div>`;
+}
+
+function saveDeadlineSettings(){
+  const start = document.getElementById('dlStart')?.value||'';
+  const end   = document.getElementById('dlEnd')?.value||'';
+  const forceLock = document.getElementById('dlForcelock')?.checked||false;
+  if(start && end && new Date(start)>=new Date(end)){
+    showToast('วันเปิดรับต้องก่อนวันปิดรับ','t-red'); return;
+  }
+  lsSet(LS_DEADLINE,{start,end,forceLock});
+  renderDeadlineTab();
+  showToast('💾 บันทึกการตั้งค่าวันส่งเรียบร้อย','t-green');
+}
+
+function clearDeadlineSettings(){
+  if(!confirm('ล้างการตั้งค่าวันส่งทั้งหมด?')) return;
+  lsSet(LS_DEADLINE,{start:'',end:'',forceLock:false});
+  renderDeadlineTab();
+  showToast('ล้างการตั้งค่าเรียบร้อย','t-dark');
+}
+
 // ════ TOAST ════
 function showToast(msg,cls){
   const el=document.getElementById('toast');
@@ -2521,6 +2982,14 @@ function init(){
   startEvalListener();
   startAllDocsListener();
 }
+
+// อัปเดต deadline banner ทุก 60 วินาที (live countdown)
+setInterval(()=>{
+  ['evalDeadlineBanner','homDeadlineBanner','viewDocsDeadlineBanner'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && el.innerHTML) renderDeadlineBanner(id);
+  });
+}, 60000);
 </script>
 </body>
 </html>
