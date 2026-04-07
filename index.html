@@ -797,6 +797,7 @@ textarea.fc{resize:vertical;min-height:70px}
       <div class="form-grp"><label>อยู่ใน</label><select id="itemCatCode" class="fc sel"></select></div>
       <div class="form-grp" style="margin-top:10px"><label>รหัสย่อย (code)</label><input type="text" id="itemCode" class="fc" placeholder="เช่น 1.1, A.1"></div>
       <div class="form-grp" style="margin-top:10px"><label>ชื่อหัวย่อย</label><input type="text" id="itemName" class="fc" placeholder="ชื่อหัวข้อ"></div>
+      <div class="form-grp" style="margin-top:10px"><label>คะแนนสูงสุด <span style="color:var(--text3);font-weight:400">(ใช้ในการประเมิน)</span></label><input type="number" id="itemMaxScore" class="fc" min="1" value="4"></div>
     </div>
     <div class="modal-foot">
       <button class="btn-cancel" onclick="closeItemModal()">ยกเลิก</button>
@@ -813,11 +814,26 @@ textarea.fc{resize:vertical;min-height:70px}
       <div class="form-grp"><label>อยู่ใน Section</label><select id="critSectionIdx" class="fc sel"></select></div>
       <div class="form-grp" style="margin-top:10px"><label>ชื่อหัวข้อ</label><input type="text" id="critName" class="fc" placeholder="เช่น 1.1 สร้างและหรือพัฒนาหลักสูตร"></div>
       <div class="form-grp" style="margin-top:10px"><label>คำอธิบาย</label><textarea id="critDesc" class="fc" rows="2" style="resize:vertical"></textarea></div>
-      <div class="form-grp" style="margin-top:10px"><label>คะแนนสูงสุด (maxScore ไม่เกิน 4)</label><input type="number" id="critMax" class="fc" min="1" max="4" value="4"></div>
+      <div class="form-grp" style="margin-top:10px"><label>คะแนนสูงสุด</label><input type="number" id="critMax" class="fc" min="1" value="4"></div>
     </div>
     <div class="modal-foot">
       <button class="btn-cancel" onclick="closeCriteriaModal()">ยกเลิก</button>
       <button class="btn-save-eval" onclick="saveCriteriaModal()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: แก้ไข Section เกณฑ์คะแนน -->
+<div class="modal-overlay" id="critSecModalOverlay">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head"><div><h2>✏️ แก้ไขชื่อ Section</h2></div><button class="modal-close" onclick="closeCritSecModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grp"><label>ชื่อ Section</label><input type="text" id="critSecName" class="fc" placeholder="เช่น องค์ประกอบที่ 1 ตอนที่ 1 : มาตรฐานตำแหน่ง (60 คะแนน)"></div>
+      <div class="form-grp" style="margin-top:10px"><label>คะแนนสูงสุดของ Section</label><input type="number" id="critSecMax" class="fc" min="1" value="60"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeCritSecModal()">ยกเลิก</button>
+      <button class="btn-save-eval" onclick="saveCritSecModal()">บันทึก</button>
     </div>
   </div>
 </div>
@@ -878,8 +894,9 @@ textarea.fc{resize:vertical;min-height:70px}
         <div class="mgb-chip g-fl">✕ ปรับปรุง &lt;60%</div>
       </div>
       <div class="ev-summary" id="evSummary"></div>
-      <div class="formula-note">📐 <strong>สูตร:</strong> ระดับที่ได้ (1–4) × คะแนนสูงสุดของหัวข้อ ÷ 4 = คะแนนที่ได้ &nbsp;|&nbsp; <strong>รวม 100 คะแนน | เกณฑ์ผ่าน ≥ 70%</strong><br>
-      ระดับ 1 = ต่ำกว่าระดับที่คาดหวังมาก &nbsp;|&nbsp; 2 = ต่ำกว่าระดับที่คาดหวัง &nbsp;|&nbsp; 3 = ตามระดับที่คาดหวัง &nbsp;|&nbsp; 4 = สูงกว่าระดับที่คาดหวัง</div>
+      <div class="formula-note">📐 <strong>สูตร:</strong> ระดับที่ได้ (1–4) × คะแนนสูงสุดของหัวข้อ ÷ 4 = คะแนนที่ได้ &nbsp;|&nbsp; <strong>เกณฑ์ผ่าน ≥ 70%</strong><br>
+      ระดับ 1 = ต่ำกว่าระดับที่คาดหวังมาก &nbsp;|&nbsp; 2 = ต่ำกว่าระดับที่คาดหวัง &nbsp;|&nbsp; 3 = ตามระดับที่คาดหวัง &nbsp;|&nbsp; 4 = สูงกว่าระดับที่คาดหวัง<br>
+      <span style="color:var(--green-d);font-weight:600">📌 เกณฑ์มาจากหัวหลัก/หัวย่อย (จัดการที่หน้า ⚙️ จัดการระบบ)</span></div>
       <!-- Quick Score (เฉพาะผู้ประเมิน) -->
       <div id="quickScoreSection" style="background:linear-gradient(135deg,#e8f5ed,#d6eaf8);border:1px solid var(--green-m);border-radius:10px;padding:14px 18px;margin-bottom:16px">
         <div style="font-size:13px;font-weight:700;color:var(--green-d);margin-bottom:10px">⚡ ให้คะแนนรวดเร็ว — เลือกระดับคะแนนรวม แล้วระบบจะเฉลี่ยแต่ละข้อให้อัตโนมัติ</div>
@@ -889,7 +906,7 @@ textarea.fc{resize:vertical;min-height:70px}
       <div id="critContainer"></div>
       <div class="summary-box">
         <div class="sum-row">
-          <span class="sum-label">คะแนนรวมทุกองค์ประกอบ (เต็ม 100 คะแนน)</span>
+          <span class="sum-label">คะแนนรวมทุกหัวข้อ (เปอร์เซ็นต์)</span>
           <div style="display:flex;align-items:center;gap:10px">
             <span class="sum-val" id="mTotal">–</span>
             <span class="sum-grade" id="mGrade">–</span>
@@ -1074,33 +1091,33 @@ var EVALUATORS = ['ev1','ev2','ev3','ev4','head'];
 
 var DOC_CATEGORIES = [
   {code:'1',name:'ด้านที่ 1 ด้านการจัดการเรียนรู้',items:[
-    {id:1,code:'1.1',name:'นำผลการวิเคราะห์หลักสูตรมาจัดทำรายวิชาและหน่วยการเรียนรู้'},
-    {id:2,code:'1.2',name:'ปฏิบัติการสอนโดยออกแบบการจัดการเรียนรู้'},
-    {id:3,code:'1.3',name:'จัดทำและใช้สื่อการเรียนรู้ที่เหมาะสม'},
-    {id:4,code:'1.4',name:'ใช้เทคนิควิธีการสอนที่หลากหลาย'},
-    {id:5,code:'1.5',name:'วัดและประเมินผลการเรียนรู้ตามสภาพจริง'},
-    {id:6,code:'1.6',name:'นำผลการประเมินไปปรับปรุงพัฒนาการเรียนการสอน'},
+    {id:1,code:'1.1',name:'นำผลการวิเคราะห์หลักสูตรมาจัดทำรายวิชาและหน่วยการเรียนรู้',maxScore:4},
+    {id:2,code:'1.2',name:'ปฏิบัติการสอนโดยออกแบบการจัดการเรียนรู้',maxScore:4},
+    {id:3,code:'1.3',name:'จัดทำและใช้สื่อการเรียนรู้ที่เหมาะสม',maxScore:4},
+    {id:4,code:'1.4',name:'ใช้เทคนิควิธีการสอนที่หลากหลาย',maxScore:4},
+    {id:5,code:'1.5',name:'วัดและประเมินผลการเรียนรู้ตามสภาพจริง',maxScore:4},
+    {id:6,code:'1.6',name:'นำผลการประเมินไปปรับปรุงพัฒนาการเรียนการสอน',maxScore:4},
   ]},
   {code:'2',name:'ด้านที่ 2 ด้านการบริหารจัดการชั้นเรียน',items:[
-    {id:7, code:'2.1',name:'จัดสภาพแวดล้อมห้องเรียนให้เอื้อต่อการเรียนรู้'},
-    {id:8, code:'2.2',name:'บริหารจัดการชั้นเรียนเชิงบวก'},
-    {id:9, code:'2.3',name:'ดูแลช่วยเหลือนักเรียนเป็นรายบุคคล'},
-    {id:10,code:'2.4',name:'ส่งเสริมพัฒนาการเรียนรู้ของผู้เรียน'},
+    {id:7, code:'2.1',name:'จัดสภาพแวดล้อมห้องเรียนให้เอื้อต่อการเรียนรู้',maxScore:4},
+    {id:8, code:'2.2',name:'บริหารจัดการชั้นเรียนเชิงบวก',maxScore:4},
+    {id:9, code:'2.3',name:'ดูแลช่วยเหลือนักเรียนเป็นรายบุคคล',maxScore:4},
+    {id:10,code:'2.4',name:'ส่งเสริมพัฒนาการเรียนรู้ของผู้เรียน',maxScore:4},
   ]},
   {code:'3',name:'ด้านที่ 3 ด้านความสัมพันธ์กับผู้ปกครองและชุมชน',items:[
-    {id:11,code:'3.1',name:'ติดต่อสื่อสารกับผู้ปกครองอย่างสม่ำเสมอ'},
-    {id:12,code:'3.2',name:'มีส่วนร่วมในกิจกรรมของสถานศึกษาและชุมชน'},
-    {id:13,code:'3.3',name:'สร้างเครือข่ายความร่วมมือกับผู้ปกครอง'},
+    {id:11,code:'3.1',name:'ติดต่อสื่อสารกับผู้ปกครองอย่างสม่ำเสมอ',maxScore:4},
+    {id:12,code:'3.2',name:'มีส่วนร่วมในกิจกรรมของสถานศึกษาและชุมชน',maxScore:4},
+    {id:13,code:'3.3',name:'สร้างเครือข่ายความร่วมมือกับผู้ปกครอง',maxScore:4},
   ]},
   {code:'activity',name:'การมีส่วนร่วม',items:[
-    {id:14,code:'A.1',name:'เข้าร่วมกิจกรรมของสถานศึกษา'},
-    {id:15,code:'A.2',name:'มีส่วนร่วมในการพัฒนาสถานศึกษา'},
-    {id:16,code:'A.3',name:'ร่วมกิจกรรมบำเพ็ญประโยชน์'},
+    {id:14,code:'A.1',name:'เข้าร่วมกิจกรรมของสถานศึกษา',maxScore:4},
+    {id:15,code:'A.2',name:'มีส่วนร่วมในการพัฒนาสถานศึกษา',maxScore:4},
+    {id:16,code:'A.3',name:'ร่วมกิจกรรมบำเพ็ญประโยชน์',maxScore:4},
   ]},
   {code:'ethics',name:'คุณธรรม จริยธรรม',items:[
-    {id:17,code:'E.1',name:'มีความซื่อสัตย์สุจริต'},
-    {id:18,code:'E.2',name:'มีความรับผิดชอบต่อหน้าที่'},
-    {id:19,code:'E.3',name:'ปฏิบัติตนตามจรรยาบรรณวิชาชีพ'},
+    {id:17,code:'E.1',name:'มีความซื่อสัตย์สุจริต',maxScore:4},
+    {id:18,code:'E.2',name:'มีความรับผิดชอบต่อหน้าที่',maxScore:4},
+    {id:19,code:'E.3',name:'ปฏิบัติตนตามจรรยาบรรณวิชาชีพ',maxScore:4},
   ]},
 ];
 
@@ -1893,7 +1910,7 @@ function editDocFile(docKey,itemId){
         }
         _notifyListeners(LS_DOCS);
         showToast('✅ อัปเดตไฟล์ PDF เรียบร้อย','t-green');
-        renderEvaluation(activeEvalTab);
+        renderViewDocs();
       }
     };
     reader.readAsDataURL(file);
@@ -1966,34 +1983,36 @@ function openModal(tid){
   evHtml+='</div>';
   document.getElementById('evSummary').innerHTML=evHtml;
 
-  // หัวข้อประเมิน
+  // หัวข้อประเมิน — มาจากหัวหลัก/หัวย่อย (DOC_CATEGORIES)
   const saved=(!isAdmin&&evalData[tid]&&evalData[tid][currentUser]?.criteria)||{};
+  const lvlLabels=['','ต่ำกว่าระดับมาก','ต่ำกว่าระดับ','ตามระดับ','สูงกว่าระดับ'];
   let html='';
-  CRITERIA.forEach((sec,si)=>{
-    html+=`<div class="crit-section"><div class="crit-sec-head"><span class="sec-num">${si+1}</span>${sec.section}</div>`;
-    sec.items.forEach(item=>{
-      if(item.subHead){
-        html+=`<div style="font-size:12px;font-weight:700;color:var(--green);background:var(--green-l);padding:6px 10px;border-radius:6px;margin:8px 0 6px;border-left:3px solid var(--green)">${item.subHead}</div>`;
-        return;
-      }
-      if(!item.id.startsWith('c')) return;
-      const val=saved[item.id]!==undefined?saved[item.id]:'';
-      const earned=val!==''?(parseInt(val)*item.maxScore/4).toFixed(2):'–';
-      const lvlLabels=['','ต่ำกว่าระดับมาก','ต่ำกว่าระดับ','ตามระดับ','สูงกว่าระดับ'];
+  DOC_CATEGORIES.forEach((cat,ci)=>{
+    const catMax = cat.items.reduce((s,it)=>s+(it.maxScore||4),0);
+    html+=`<div class="crit-section">
+      <div class="crit-sec-head"><span class="sec-num">${ci+1}</span>${cat.name} <span style="font-size:11px;font-weight:400;opacity:.75">(สูงสุด ${catMax} คะแนน)</span></div>`;
+    cat.items.forEach(item=>{
+      const key='d'+item.id;
+      const ms=item.maxScore||4;
+      const val=saved[key]!==undefined?saved[key]:'';
+      const earned=val!==''?(parseInt(val)*ms/4).toFixed(2):'–';
       html+=`<div style="flex-direction:column;align-items:flex-start;gap:8px;padding:10px 0;border-bottom:1px solid #f3f4f6;display:flex">`;
-      html+=`<div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;gap:10px"><div style="flex:1"><div style="font-size:13px;font-weight:500">${item.name}</div><div style="font-size:11px;color:var(--text3);margin-top:2px;line-height:1.5">${item.desc}</div></div><span style="font-size:11px;color:var(--text2);background:#f3f4f6;padding:3px 9px;border-radius:10px;white-space:nowrap;flex-shrink:0">สูงสุด ${item.maxScore} คะแนน</span></div>`;
+      html+=`<div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;gap:10px">
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">${item.code} ${item.name}</div></div>
+        <span style="font-size:11px;color:var(--text2);background:#f3f4f6;padding:3px 9px;border-radius:10px;white-space:nowrap;flex-shrink:0">สูงสุด ${ms} คะแนน</span>
+      </div>`;
       html+=`<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;width:100%">`;
       [1,2,3,4].forEach(lv=>{
         const checked=val==lv?'checked':'';
         const disabled=isAdmin?'disabled':'';
         const sel=val==lv;
         html+=`<label style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:${isAdmin?'default':'pointer'};flex:1;min-width:60px;padding:8px 4px;border:1px solid ${sel?'var(--green)':'var(--border2)'};border-radius:8px;background:${sel?'var(--green-l)':'#fff'}">
-          <input type="radio" name="lvl_${item.id}" value="${lv}" ${checked} ${disabled} onchange="onLevelChange(this)" data-id="${item.id}" data-max="${item.maxScore}" style="accent-color:var(--green)">
+          <input type="radio" name="lvl_${key}" value="${lv}" ${checked} ${disabled} onchange="onLevelChange(this)" data-id="${key}" data-max="${ms}" style="accent-color:var(--green)">
           <span style="font-size:13px;font-weight:700;color:${sel?'var(--green)':'var(--text2)'}">${lv}</span>
           <span style="font-size:9px;color:var(--text3);text-align:center;line-height:1.2">${lvlLabels[lv]}</span>
         </label>`;
       });
-      html+=`<div style="min-width:70px;text-align:right"><span style="font-size:11px;color:var(--text3)">ได้</span><br><span id="w_${item.id}" style="font-size:13px;font-weight:700;color:var(--green)">${earned} คะแนน</span></div>`;
+      html+=`<div style="min-width:70px;text-align:right"><span style="font-size:11px;color:var(--text3)">ได้</span><br><span id="w_${key}" style="font-size:13px;font-weight:700;color:var(--green)">${earned} คะแนน</span></div>`;
       html+=`</div></div>`;
     });
     html+='</div>';
@@ -2050,20 +2069,23 @@ function onLevelChange(el){
   calcTotal();
 }
 function calcTotal(){
-  const allItems=CRITERIA.flatMap(s=>s.items.filter(i=>!i.subHead&&i.id.startsWith('c')));
+  const allItems=DOC_CATEGORIES.flatMap(cat=>cat.items);
+  const maxTotal=allItems.reduce((s,it)=>s+(it.maxScore||4),0);
   let total=0,allFilled=true;
   allItems.forEach(item=>{
-    const checked=document.querySelector(`input[name="lvl_${item.id}"]:checked`);
+    const key='d'+item.id;
+    const checked=document.querySelector(`input[name="lvl_${key}"]:checked`);
     if(!checked){allFilled=false;return;}
-    total+=parseInt(checked.value)*item.maxScore/4;
+    total+=parseInt(checked.value)*(item.maxScore||4)/4;
   });
+  const pct=maxTotal>0?Math.round(total/maxTotal*10000)/100:0;
   const t=Math.round(total*100)/100;
-  document.getElementById('mTotal').textContent=allFilled?t.toFixed(2):'–';
+  document.getElementById('mTotal').textContent=allFilled?t.toFixed(2)+' / '+maxTotal+' คะแนน':'–';
   if(allFilled){
-    const grade=getGrade(t);
+    const grade=getGrade(pct);
     document.getElementById('mGrade').textContent=grade.sym+' '+grade.label;
     document.getElementById('mGrade').className='sum-grade '+grade.cls;
-    document.getElementById('mGradeNote').textContent=grade.note;
+    document.getElementById('mGradeNote').textContent='('+pct.toFixed(1)+'%) '+grade.note;
   } else {
     document.getElementById('mGrade').textContent='–';
     document.getElementById('mGrade').className='sum-grade';
@@ -2072,30 +2094,32 @@ function calcTotal(){
 }
 function saveEval(){
   if(USERS[currentUser]?.type==='admin') return;
-  const allItems=CRITERIA.flatMap(s=>s.items.filter(i=>!i.subHead&&i.id.startsWith('c')));
+  const allItems=DOC_CATEGORIES.flatMap(cat=>cat.items);
+  const maxTotal=allItems.reduce((s,it)=>s+(it.maxScore||4),0);
   let total=0,hasEmpty=false;const crit={};
   allItems.forEach(item=>{
-    const checked=document.querySelector(`input[name="lvl_${item.id}"]:checked`);
+    const key='d'+item.id;
+    const checked=document.querySelector(`input[name="lvl_${key}"]:checked`);
     if(!checked){
       hasEmpty=true;
-      document.querySelectorAll(`input[name="lvl_${item.id}"]`).forEach(r=>{r.parentElement.style.borderColor='#c0392b';});
+      document.querySelectorAll(`input[name="lvl_${key}"]`).forEach(r=>{r.parentElement.style.borderColor='#c0392b';});
       return;
     }
-    const lv=parseInt(checked.value);crit[item.id]=lv;total+=lv*item.maxScore/4;
+    const lv=parseInt(checked.value);crit[key]=lv;total+=lv*(item.maxScore||4)/4;
   });
   if(hasEmpty){showToast('กรุณาเลือกระดับให้ครบทุกหัวข้อ','t-red');return;}
-  const scoreObj={score:Math.round(total*100)/100,criteria:crit,evaluatorName:USERS[currentUser].name,savedAt:Date.now()};
+  const pct=maxTotal>0?Math.round(total/maxTotal*10000)/100:0;
+  const scoreObj={score:pct,rawScore:Math.round(total*100)/100,maxScore:maxTotal,criteria:crit,evaluatorName:USERS[currentUser].name,savedAt:Date.now()};
   const t=TEACHERS.find(x=>x.id===currentTid);
   document.getElementById('btnSave').disabled=true;
   document.getElementById('btnSave').innerHTML='<span class="spinner"></span> กำลังบันทึก...';
-  // บันทึกลง localStorage
   const allEval=lsGet(LS_EVAL)||{};
   if(!allEval[String(currentTid)]) allEval[String(currentTid)]={};
   allEval[String(currentTid)][currentUser]=scoreObj;
   lsSet(LS_EVAL,allEval);
   _notifyListeners(LS_EVAL);
   closeModal();
-  showToast('✅ บันทึกแล้ว · '+t.name+' · '+scoreObj.score.toFixed(2)+' คะแนน','t-green');
+  showToast('✅ บันทึกแล้ว · '+t.name+' · '+pct.toFixed(2)+'%','t-green');
 }
 function closeModal(){
   document.getElementById('modalOverlay').classList.remove('open');
@@ -2340,69 +2364,53 @@ function openFileBlob(fileData, fileType){
 }
 
 // ════ QUICK SCORE ════
-function applyQuickScore(targetScore){
+function applyQuickScore(targetPct){
   const isAdmin=USERS[currentUser]?.type==='admin';
   if(isAdmin) return;
 
-  const allItems=CRITERIA.flatMap(s=>s.items.filter(i=>!i.subHead&&i.id.startsWith('c')));
+  const allItems=DOC_CATEGORIES.flatMap(cat=>cat.items);
+  const maxTotal=allItems.reduce((s,it)=>s+(it.maxScore||4),0);
+  const targetScore = targetPct / 100 * maxTotal; // แปลง % → คะแนนจริง
 
-  // คำนวณ level ที่เหมาะสมของแต่ละข้อแบบ greedy
-  // เริ่มจาก level ต่ำสุด (1) แล้วค่อยๆ เพิ่มขึ้นตามสัดส่วน
-  // score ของแต่ละข้อ = lv * maxScore / 4
-  // รวม targetScore = sum(lv_i * max_i / 4)
-
-  // วิธี: assign level พื้นฐาน = floor(targetScore/100 * 4) ทุกข้อ
-  // แล้วนำ "เศษ" ที่ขาดไปกระจายให้บาง item เพิ่ม 1 level
-
-  const baseRatio = targetScore / 100; // เช่น 0.85, 0.90, 0.95
-  const baseLv = Math.max(1, Math.min(3, Math.floor(baseRatio * 4))); // floor ให้ได้ level ฐาน
+  const baseRatio = targetPct / 100;
+  const baseLv = Math.max(1, Math.min(3, Math.floor(baseRatio * 4)));
   const nextLv = Math.min(4, baseLv + 1);
 
-  // คำนวณคะแนนถ้าทุกข้อได้ baseLv
-  const scoreAtBase = allItems.reduce((s, item) => s + baseLv * item.maxScore / 4, 0);
-  // คะแนนถ้าทุกข้อได้ nextLv
-  const scoreAtNext = allItems.reduce((s, item) => s + nextLv * item.maxScore / 4, 0);
+  const scoreAtBase = allItems.reduce((s,item)=>s+baseLv*(item.maxScore||4)/4, 0);
 
-  // ต้องการ targetScore → หาว่าต้องมีกี่ข้อที่ขึ้นเป็น nextLv
-  // targetScore ≈ scoreAtBase + k * (nextLv - baseLv)/4 * avgMax
-  // แก้แบบ greedy: เรียง item ตาม maxScore มาก→น้อย แล้ว upgrade ทีละข้อจนถึงเป้า
-
-  // เริ่มด้วยทุกข้อ = baseLv
   const levels = {};
-  allItems.forEach(item => { levels[item.id] = baseLv; });
+  allItems.forEach(item=>{ levels['d'+item.id]=baseLv; });
   let currentScore = scoreAtBase;
 
-  // เรียง item ตาม maxScore มาก→น้อย เพื่อ upgrade ได้เร็วที่สุด
-  const sortedItems = [...allItems].sort((a, b) => b.maxScore - a.maxScore);
+  const sortedItems = [...allItems].sort((a,b)=>(b.maxScore||4)-(a.maxScore||4));
   for(const item of sortedItems){
     if(currentScore >= targetScore) break;
-    const gain = (nextLv - baseLv) * item.maxScore / 4;
-    if(currentScore + gain <= targetScore + 0.001){
-      levels[item.id] = nextLv;
-      currentScore += gain;
+    const gain=(nextLv-baseLv)*(item.maxScore||4)/4;
+    if(currentScore+gain<=targetScore+0.001){
+      levels['d'+item.id]=nextLv;
+      currentScore+=gain;
     }
   }
-
-  // ถ้ายังขาดอยู่ให้ลองเพิ่มอีกรอบ (กรณี baseLv=3 → nextLv=4)
   if(currentScore < targetScore - 0.5){
     for(const item of sortedItems){
       if(currentScore >= targetScore) break;
-      if(levels[item.id] < 4){
-        const gain = (4 - levels[item.id]) * item.maxScore / 4;
-        levels[item.id] = 4;
-        currentScore += gain;
+      if(levels['d'+item.id] < 4){
+        const gain=(4-levels['d'+item.id])*(item.maxScore||4)/4;
+        levels['d'+item.id]=4;
+        currentScore+=gain;
       }
     }
   }
 
-  // Apply ค่า level ลง UI
   allItems.forEach(item=>{
-    const lv = levels[item.id];
-    const radio=document.querySelector(`input[name="lvl_${item.id}"][value="${lv}"]`);
+    const key='d'+item.id;
+    const ms=item.maxScore||4;
+    const lv=levels[key];
+    const radio=document.querySelector(`input[name="lvl_${key}"][value="${lv}"]`);
     if(radio){
       radio.checked=true;
-      document.getElementById('w_'+item.id).textContent=(lv*item.maxScore/4).toFixed(2)+' คะแนน';
-      document.querySelectorAll(`input[name="lvl_${item.id}"]`).forEach(r=>{
+      document.getElementById('w_'+key).textContent=(lv*ms/4).toFixed(2)+' คะแนน';
+      document.querySelectorAll(`input[name="lvl_${key}"]`).forEach(r=>{
         const lbl=r.parentElement; const sel=r.checked;
         lbl.style.borderColor=sel?'var(--green)':'var(--border2)';
         lbl.style.background=sel?'var(--green-l)':'#fff';
@@ -2412,13 +2420,15 @@ function applyQuickScore(targetScore){
   });
 
   calcTotal();
-  const realTotal=allItems.reduce((s,item)=>{
-    const checked=document.querySelector(`input[name="lvl_${item.id}"]:checked`);
-    return s+(checked?parseInt(checked.value)*item.maxScore/4:0);
+  const realRaw=allItems.reduce((s,item)=>{
+    const key='d'+item.id;
+    const checked=document.querySelector(`input[name="lvl_${key}"]:checked`);
+    return s+(checked?parseInt(checked.value)*(item.maxScore||4)/4:0);
   },0);
+  const realPct=maxTotal>0?Math.round(realRaw/maxTotal*10000)/100:0;
   const msg=document.getElementById('quickScoreMsg');
   msg.style.display='block';
-  msg.innerHTML=`✅ เฉลี่ยคะแนนแล้ว → ได้คะแนนรวม <strong>${realTotal.toFixed(2)} คะแนน</strong> (เป้าหมาย ${targetScore}) &nbsp;|&nbsp; สามารถปรับแต่ละข้อเพิ่มเติมได้`;
+  msg.innerHTML=`✅ เฉลี่ยคะแนนแล้ว → ได้ <strong>${realRaw.toFixed(2)} / ${maxTotal} คะแนน (${realPct.toFixed(1)}%)</strong> (เป้าหมาย ${targetPct}%) &nbsp;|&nbsp; สามารถปรับแต่ละข้อเพิ่มเติมได้`;
 }
 
 // ════ ADMIN MANAGE ════
@@ -2468,6 +2478,7 @@ function renderManageCategories(){
         <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px dashed var(--border);font-size:13px">
           <span style="color:var(--text2)">${item.code}</span>
           <span style="flex:1">${item.name}</span>
+          <span style="font-size:11px;background:#e8f5ed;color:var(--green-d);padding:2px 8px;border-radius:10px;white-space:nowrap;border:1px solid var(--green-m)">สูงสุด ${item.maxScore||4} คะแนน</span>
           <button class="btn-do btn-edit" style="font-size:11px;padding:2px 8px;color:var(--blue);border-color:var(--blue)" onclick="openEditItemModal(${ci},${ii})">✏️</button>
           <button class="btn-do btn-edit" style="font-size:11px;padding:2px 8px;color:var(--red);border-color:var(--red)" onclick="deleteItem(${ci},${ii})">🗑</button>
         </div>`).join('')}
@@ -2499,6 +2510,7 @@ function openAddItemModal(ci){
   const sel=document.getElementById('itemCatCode');
   sel.innerHTML=DOC_CATEGORIES.map((c,i)=>`<option value="${i}" ${i===ci?'selected':''}>${c.code} ${c.name}</option>`).join('');
   document.getElementById('itemCode').value=''; document.getElementById('itemName').value='';
+  document.getElementById('itemMaxScore').value='4';
   document.getElementById('itemModalOverlay').classList.add('open'); document.body.style.overflow='hidden';
 }
 function openEditItemModal(ci,ii){
@@ -2508,6 +2520,7 @@ function openEditItemModal(ci,ii){
   sel.innerHTML=DOC_CATEGORIES.map((c,i)=>`<option value="${i}" ${i===ci?'selected':''}>${c.code} ${c.name}</option>`).join('');
   document.getElementById('itemCode').value=DOC_CATEGORIES[ci].items[ii].code;
   document.getElementById('itemName').value=DOC_CATEGORIES[ci].items[ii].name;
+  document.getElementById('itemMaxScore').value=DOC_CATEGORIES[ci].items[ii].maxScore||4;
   document.getElementById('itemModalOverlay').classList.add('open'); document.body.style.overflow='hidden';
 }
 function closeItemModal(){ document.getElementById('itemModalOverlay').classList.remove('open'); document.body.style.overflow=''; }
@@ -2516,9 +2529,19 @@ function saveItemModal(){
   const code=document.getElementById('itemCode').value.trim();
   const name=document.getElementById('itemName').value.trim();
   if(!code||!name){showToast('กรุณากรอกข้อมูลให้ครบ','t-red');return;}
+  const maxScore=Math.max(1,parseInt(document.getElementById('itemMaxScore').value)||4);
   const maxId=DOC_CATEGORIES.flatMap(c=>c.items).reduce((m,i)=>Math.max(m,i.id),0);
-  if(_editItemIdx===null){ DOC_CATEGORIES[ci].items.push({id:maxId+1,code,name}); }
-  else { const old=DOC_CATEGORIES[_editItemCatIdx].items.splice(_editItemIdx,1)[0]; DOC_CATEGORIES[ci].items.push({...old,code,name}); }
+  if(_editItemIdx===null){ DOC_CATEGORIES[ci].items.push({id:maxId+1,code,name,maxScore}); }
+  else { const old=DOC_CATEGORIES[_editItemCatIdx].items.splice(_editItemIdx,1)[0]; DOC_CATEGORIES[ci].items.push({...old,code,name,maxScore}); }
+  // เรียงหัวย่อยตาม code (เช่น 1.1 ก่อน 1.2 ก่อน 2.1)
+  DOC_CATEGORIES[ci].items.sort((a,b)=>{
+    const parse=s=>s.split('.').map(n=>parseInt(n)||0);
+    const aa=parse(a.code), bb=parse(b.code);
+    for(let i=0;i<Math.max(aa.length,bb.length);i++){
+      if((aa[i]||0)!==(bb[i]||0)) return (aa[i]||0)-(bb[i]||0);
+    }
+    return 0;
+  });
   closeItemModal(); renderManageCategories(); showToast('บันทึกหัวย่อยเรียบร้อย','t-green');
 }
 function deleteItem(ci,ii){
@@ -2526,27 +2549,29 @@ function deleteItem(ci,ii){
   DOC_CATEGORIES[ci].items.splice(ii,1); renderManageCategories(); showToast('ลบหัวย่อยเรียบร้อย','t-green');
 }
 
-// ── เกณฑ์คะแนน ──
+// ── เกณฑ์คะแนน (แสดงจาก DOC_CATEGORIES) ──
 function renderManageCriteria(){
   const el=document.getElementById('manageCriteriaList');
   if(!el) return;
-  let html='';
-  CRITERIA.forEach((sec,si)=>{
+  const allItems=DOC_CATEGORIES.flatMap(c=>c.items);
+  const totalMax=allItems.reduce((s,i)=>s+(i.maxScore||4),0);
+  let html=`<div style="padding:12px 18px 8px;background:var(--green-l);border-bottom:1px solid var(--green-m);font-size:13px;color:var(--green-d)">
+    📌 เกณฑ์การประเมินมาจาก <strong>หัวหลัก/หัวย่อย</strong> โดยอัตโนมัติ — แก้ไขที่แท็บ "📂 หัวหลัก/หัวย่อย"<br>
+    <span style="font-size:12px">คะแนนสูงสุดรวมทั้งหมด: <strong>${totalMax} คะแนน</strong> | เกณฑ์ผ่าน ≥ 70%</span>
+  </div>`;
+  DOC_CATEGORIES.forEach((cat,ci)=>{
+    const catMax=cat.items.reduce((s,i)=>s+(i.maxScore||4),0);
     html+=`<div style="border-bottom:2px solid var(--border);padding:14px 18px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <span style="font-weight:700;font-size:13px;color:var(--green-d)">📌 ${sec.section} <span style="font-size:11px;color:var(--text2)">(สูงสุด ${sec.sectionMax} คะแนน)</span></span>
-        <button class="btn-do btn-edit" style="font-size:11px;padding:3px 9px;color:var(--blue);border-color:var(--blue);margin-left:auto" onclick="openAddCriteriaModal(${si})">+ เพิ่มข้อ</button>
+      <div style="font-weight:700;font-size:13px;color:var(--green-d);margin-bottom:8px">
+        📂 ${cat.name} <span style="font-size:11px;font-weight:400;color:var(--text2)">(สูงสุด ${catMax} คะแนน)</span>
       </div>
       <div style="padding-left:12px">
-        ${sec.items.filter(i=>!i.subHead).map((item,ii)=>{
-          const realIdx=sec.items.indexOf(item);
-          return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--border);font-size:13px">
-            <span style="flex:1">${item.name}</span>
-            <span style="font-size:11px;background:#f3f4f6;padding:2px 8px;border-radius:10px;white-space:nowrap">สูงสุด ${item.maxScore} คะแนน</span>
-            <button class="btn-do btn-edit" style="font-size:11px;padding:2px 8px;color:var(--blue);border-color:var(--blue)" onclick="openEditCriteriaModal(${si},${realIdx})">✏️</button>
-            <button class="btn-do btn-edit" style="font-size:11px;padding:2px 8px;color:var(--red);border-color:var(--red)" onclick="deleteCriteriaItem(${si},${realIdx})">🗑</button>
-          </div>`;
-        }).join('')}
+        ${cat.items.map(item=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--border);font-size:13px">
+          <span style="color:var(--text2);min-width:32px">${item.code}</span>
+          <span style="flex:1">${item.name}</span>
+          <span style="font-size:11px;background:#f3f4f6;padding:2px 8px;border-radius:10px;white-space:nowrap">สูงสุด ${item.maxScore||4} คะแนน</span>
+        </div>`).join('')}
       </div>
     </div>`;
   });
@@ -2574,7 +2599,7 @@ function saveCriteriaModal(){
   const si=parseInt(document.getElementById('critSectionIdx').value);
   const name=document.getElementById('critName').value.trim();
   const desc=document.getElementById('critDesc').value.trim();
-  const maxScore=Math.min(4,Math.max(1,parseInt(document.getElementById('critMax').value)||4));
+  const maxScore=Math.max(1,parseInt(document.getElementById('critMax').value)||4);
   if(!name){showToast('กรุณากรอกชื่อหัวข้อ','t-red');return;}
   // สร้าง id อัตโนมัติ
   const allIds=CRITERIA.flatMap(s=>s.items.filter(i=>i.id&&i.id.startsWith('c')).map(i=>parseInt(i.id.replace('c',''))||0));
@@ -2586,6 +2611,29 @@ function saveCriteriaModal(){
 function deleteCriteriaItem(si,ii){
   if(!confirm(`ลบ "${CRITERIA[si].items[ii].name}"?`)) return;
   CRITERIA[si].items.splice(ii,1); renderManageCriteria(); showToast('ลบหัวข้อเรียบร้อย','t-green');
+}
+
+var _editCritSecModalIdx=null;
+function openEditCritSecModal(si){
+  _editCritSecModalIdx=si;
+  document.getElementById('critSecName').value=CRITERIA[si].section;
+  document.getElementById('critSecMax').value=CRITERIA[si].sectionMax;
+  document.getElementById('critSecModalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeCritSecModal(){
+  document.getElementById('critSecModalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function saveCritSecModal(){
+  const si=_editCritSecModalIdx;
+  if(si===null) return;
+  const name=document.getElementById('critSecName').value.trim();
+  const max=Math.max(1,parseInt(document.getElementById('critSecMax').value)||1);
+  if(!name){showToast('กรุณากรอกชื่อ Section','t-red');return;}
+  CRITERIA[si].section=name;
+  CRITERIA[si].sectionMax=max;
+  closeCritSecModal(); renderManageCriteria(); showToast('✅ บันทึก Section เรียบร้อย','t-green');
 }
 
 // ── ข้อมูลครู ──
@@ -2926,11 +2974,11 @@ function showToast(msg,cls){
 // ════ HELP MODAL ════
 function openHelp(type){
   const isTeacher=type==='teacher';
-  const html=`<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)this.remove()">
+  const html=`<div id="helpOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)document.getElementById('helpOverlay').remove()">
     <div style="background:#fff;border-radius:12px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.25)">
       <div style="padding:20px 24px 16px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff">
         <h2 style="font-size:16px;font-weight:700">📖 วิธีใช้งาน ${isTeacher?'(ครูอัตราจ้าง)':'(ผู้ประเมิน/ผู้ดูแล)'}</h2>
-        <button onclick="this.closest('[style]').remove()" style="width:30px;height:30px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;font-size:16px">✕</button>
+        <button onclick="document.getElementById('helpOverlay').remove()" style="width:30px;height:30px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;font-size:16px">✕</button>
       </div>
       <div style="padding:20px 24px;display:flex;flex-direction:column;gap:16px">
         ${isTeacher?`
