@@ -2742,7 +2742,9 @@ function toggleEvaluatorActive(i, active){
     }
   }
   updateStats();
+  const _sy = window.scrollY;
   renderTable();
+  window.scrollTo({top:_sy, behavior:'instant'});
   showToast(active?`เปิดใช้งาน "${USERS[key].name}" แล้ว`:`ปิดใช้งาน "${USERS[key].name}" แล้ว`, active?'t-green':'t-dark');
 }
 function openAddEvaluatorModal(){
