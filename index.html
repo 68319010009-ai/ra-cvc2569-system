@@ -906,7 +906,7 @@ textarea.fc{resize:vertical;min-height:70px}
       <div id="critContainer"></div>
       <div class="summary-box">
         <div class="sum-row">
-          <span class="sum-label">คะแนนรวมทุกหัวข้อ (เปอร์เซ็นต์)</span>
+          <span class="sum-label">คะแนนรวมทุกหัวข้อ</span>
           <div style="display:flex;align-items:center;gap:10px">
             <span class="sum-val" id="mTotal">–</span>
             <span class="sum-grade" id="mGrade">–</span>
@@ -1199,10 +1199,17 @@ var toastTimer    = null;
 function activeEvaluators(){
   return EVALUATORS.filter(k=>USERS[k]?.active!==false);
 }
+function normalizeScore(ev){
+  // ถ้ามี rawScore และ maxScore ให้คำนวณ pct ใหม่จากข้อมูลจริง (ป้องกัน legacy data)
+  if(ev.rawScore!=null && ev.maxScore!=null && ev.maxScore>0){
+    return Math.round(ev.rawScore/ev.maxScore*10000)/100;
+  }
+  return ev.score;
+}
 function getAvgScore(tid){
   const evs = evalData[tid];
   if(!evs) return null;
-  const scores = activeEvaluators().map(e=>evs[e]?.score).filter(s=>s!=null);
+  const scores = activeEvaluators().map(e=>evs[e]!=null?normalizeScore(evs[e]):null).filter(s=>s!=null);
   return scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*100)/100 : null;
 }
 function isComplete(tid){
@@ -1521,8 +1528,10 @@ function renderTable(){
     const teacherKey='teacher'+(String(t.id).padStart(2,'0'));
     const docCount=getTeacherDocCount(teacherKey);
     const dots=activeEvaluators().map(e=>{
-      const has=evalData[t.id]&&evalData[t.id][e]?.score!=null;
-      const tip=USERS[e].name+(has?' ('+evalData[t.id][e].score.toFixed(1)+')':' – ยังไม่ประเมิน');
+      const evObj=evalData[t.id]&&evalData[t.id][e];
+      const sc=evObj!=null?normalizeScore(evObj):null;
+      const has=sc!=null;
+      const tip=USERS[e].name+(has?' ('+sc.toFixed(1)+'%)':' – ยังไม่ประเมิน');
       return `<div class="ev-dot${has?' filled':''}" title="${tip}"></div>`;
     }).join('');
     const myDone=evalData[t.id]&&evalData[t.id][currentUser]?.score!=null;
@@ -1644,7 +1653,7 @@ function renderEvaluation(tab){
     `<button class="tab-btn tab-btn-show" onclick="showTeacherPage('viewdocs')">แสดงทั้งหมด</button>`;
 
   const docs=getTeacherDocs();
-  const allDocs=Object.values(docs);
+  const allDocs=Object.entries(docs).map(([k,v])=>({...v,_key:k}));
   document.getElementById('evalTabContents').innerHTML=DOC_CATEGORIES.map(cat=>`
     <div class="tab-content ${cat.code===activeEvalTab?'active':''}" id="etab-${cat.code}">
       <div class="cat-header">📂 ${cat.name}</div>
@@ -1880,7 +1889,7 @@ function deleteDocV(docKey){
   if(teacherDocsData[uid]) delete teacherDocsData[uid][docKey];
   _notifyListeners(LS_DOCS);
   showToast('ลบเอกสารเรียบร้อย','t-green');
-  renderViewDocs();
+  renderEvaluation(activeEvalTab);
 }
 function editDocFile(docKey,itemId){
   if(isSubmissionLocked()||isSubmissionBefore()){showToast('🔒 ปิดรับเอกสารแล้ว ไม่สามารถแก้ไขได้','t-red');return;}
@@ -1910,7 +1919,7 @@ function editDocFile(docKey,itemId){
         }
         _notifyListeners(LS_DOCS);
         showToast('✅ อัปเดตไฟล์ PDF เรียบร้อย','t-green');
-        renderViewDocs();
+        renderEvaluation(activeEvalTab);
       }
     };
     reader.readAsDataURL(file);
@@ -1975,10 +1984,11 @@ function openModal(tid){
   // คะแนนผู้ประเมิน
   let evHtml='<div class="ev-s-title">คะแนนผู้ประเมินแต่ละท่าน</div><div class="ev-list">';
   EVALUATORS.forEach(e=>{
-    const sc=evalData[tid]&&evalData[tid][e]?.score;
+    const evObj=evalData[tid]&&evalData[tid][e];
+    const sc=evObj!=null?normalizeScore(evObj):null;
     const has=sc!=null;
     const g=has?getGrade(sc):null;
-    evHtml+=`<div class="ev-row"><span class="en">${USERS[e].name} (${USERS[e].role})</span>${has?`<span class="es">${sc.toFixed(2)} <span class="grade-pill ${g.cls}" style="font-size:10px;padding:2px 7px">${g.label}</span></span>`:'<span class="ee">ยังไม่ประเมิน</span>'}</div>`;
+    evHtml+=`<div class="ev-row"><span class="en">${USERS[e].name} (${USERS[e].role})</span>${has?`<span class="es">${sc.toFixed(2)}% <span class="grade-pill ${g.cls}" style="font-size:10px;padding:2px 7px">${g.label}</span></span>`:'<span class="ee">ยังไม่ประเมิน</span>'}</div>`;
   });
   evHtml+='</div>';
   document.getElementById('evSummary').innerHTML=evHtml;
@@ -2080,7 +2090,7 @@ function calcTotal(){
   });
   const pct=maxTotal>0?Math.round(total/maxTotal*10000)/100:0;
   const t=Math.round(total*100)/100;
-  document.getElementById('mTotal').textContent=allFilled?t.toFixed(2)+' / '+maxTotal+' คะแนน':'–';
+  document.getElementById('mTotal').textContent=allFilled?t.toFixed(2)+' / '+maxTotal+' คะแนน ('+pct.toFixed(1)+'%)':'–';
   if(allFilled){
     const grade=getGrade(pct);
     document.getElementById('mGrade').textContent=grade.sym+' '+grade.label;
@@ -2186,7 +2196,7 @@ function sendNotification(teacherName,teacherId,docName,itemName){
 function exportCSV(){
   const rows=[['#','ชื่อ-นามสกุล','แผนกวิชา',...EVALUATORS.map(e=>USERS[e].name),'คะแนนเฉลี่ย','ระดับ','สถานะ']];
   TEACHERS.forEach((t,i)=>{
-    const evs=EVALUATORS.map(e=>evalData[t.id]&&evalData[t.id][e]?.score!=null?evalData[t.id][e].score.toFixed(2):'–');
+    const evs=EVALUATORS.map(e=>{const evObj=evalData[t.id]&&evalData[t.id][e];const sc=evObj!=null?normalizeScore(evObj):null;return sc!=null?sc.toFixed(2):'–';});
     const avg=getAvgScore(t.id);const grade=getGrade(avg);
     rows.push([i+1,t.name,t.dept,...evs,avg!=null?avg.toFixed(2):'–',grade?grade.label:'–',isComplete(t.id)?'ครบแล้ว':'ยังไม่ครบ']);
   });
@@ -2220,7 +2230,8 @@ function exportPDF(tid){
   const dateStr=new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
 
   const evRows=EVALUATORS.map(e=>{
-    const sc=evData[e]?.score;
+    const evObj=evData[e];
+    const sc=evObj!=null?normalizeScore(evObj):null;
     const g=sc!=null?getGrade(sc):null;
     const bgMap={g_ex:'#fff8e1',g_vg:'#e8f5ed',g_gd:'#e3f2fd',g_av:'#fff3e0',g_fl:'#f3f4f6'};
     const fgMap={g_ex:'#b7770d',g_vg:'#1a5c38',g_gd:'#1565c0',g_av:'#e65100',g_fl:'#6b7280'};
