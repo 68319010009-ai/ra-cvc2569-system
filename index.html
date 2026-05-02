@@ -75,6 +75,7 @@ body.dark .score-bar-bg{background:#1e2535}
 body.dark .upload-bar-bg{background:#1e2535}
 body.dark input[type="radio"]{accent-color:var(--green)}
 body.dark label[style*="background:#fff"]{background:var(--input-bg)!important}
+body.dark .status-radio-row{background:var(--input-bg)}
 body.dark .badge-year{background:#0d2b1a;color:var(--green);border-color:var(--green-m)}
 
 /* ══ DARK TOGGLE BUTTON ══ */
@@ -325,8 +326,8 @@ textarea.fc{resize:vertical;min-height:70px}
 .notif-empty{text-align:center;padding:40px;color:var(--text3)}
 
 /* ══ TEACHER DASHBOARD EVALUATOR STATUS ══ */
-.ev-status-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:18px}
-.ev-status-card{background:#fff;border-radius:var(--r2);border:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;transition:box-shadow .15s}
+.ev-status-grid{display:flex;flex-wrap:nowrap;gap:10px;margin-bottom:18px;overflow-x:auto}
+.ev-status-card{background:#fff;border-radius:var(--r2);border:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;transition:box-shadow .15s;flex:1;min-width:140px}
 .ev-status-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
 .ev-status-icon{font-size:26px;line-height:1;flex-shrink:0}
 .ev-status-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3}
@@ -438,6 +439,9 @@ textarea.fc{resize:vertical;min-height:70px}
   .toast{left:14px;right:14px;bottom:70px}
   .tbl{font-size:12px}
   .ev-status-grid{grid-template-columns:1fr 1fr}
+}
+@media(min-width:769px) and (max-width:1199px){
+  .ev-status-grid{grid-template-columns:repeat(3,1fr)}
 }
 @media(min-width:769px) and (max-width:1024px){
   :root{--sidebar:200px}
@@ -928,9 +932,10 @@ textarea.fc{resize:vertical;min-height:70px}
 // ════════════════════════════════════════════
 // 🗄️ LOCAL STORAGE DATABASE (แทน Firebase)
 // ════════════════════════════════════════════
-const LS_EVAL  = 'ra_cvc2569_evalData';
-const LS_DOCS  = 'ra_cvc2569_teacherDocs';
-const LS_NOTIF = 'ra_cvc2569_notifications';
+const LS_EVAL        = 'ra_cvc2569_evalData';
+const LS_DOCS        = 'ra_cvc2569_teacherDocs';
+const LS_NOTIF       = 'ra_cvc2569_notifications';
+const LS_ITEM_STATUS = 'ra_cvc2569_itemStatus';   // สถานะ มีครบ/ยังไม่ครบ/ไม่มี ของแต่ละหัวข้อ
 
 function lsGet(key){ try{ return JSON.parse(localStorage.getItem(key)||'null'); }catch(e){ return null; } }
 function lsSet(key,val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){ console.error('localStorage full?',e); } }
@@ -1238,6 +1243,32 @@ function getBarColor(s){
 function getTeacherDocCount(teacherUsername){
   const docs = teacherDocsData[teacherUsername];
   return docs ? Object.keys(docs).length : 0;
+}
+// ── สถานะหัวข้อ (มีครบ / ยังไม่ครบ / ไม่มี) ──
+function getItemStatuses(){
+  const uid = USERS[currentUser]?.username || currentUser;
+  const all = lsGet(LS_ITEM_STATUS) || {};
+  return all[uid] || {};
+}
+function saveItemStatusFn(itemId, status){
+  const uid = USERS[currentUser]?.username || currentUser;
+  const all = lsGet(LS_ITEM_STATUS) || {};
+  if(!all[uid]) all[uid] = {};
+  all[uid][String(itemId)] = status;
+  lsSet(LS_ITEM_STATUS, all);
+  const badge = document.getElementById('stBadge_'+itemId);
+  if(badge){
+    const cfg = {
+      'มีครบ':    {bg:'#e8f5ed',color:'#1a5c38',border:'#a8d9b8'},
+      'ยังไม่ครบ':{bg:'#fff8e1',color:'#b7770d',border:'#f0c44a'},
+      'ไม่มี':    {bg:'#f3f4f6',color:'#6b7280',border:'#d1d5db'},
+    };
+    const c = cfg[status] || cfg['ไม่มี'];
+    badge.textContent = status;
+    badge.style.background = c.bg;
+    badge.style.color = c.color;
+    badge.style.border = '1px solid '+c.border;
+  }
 }
 function getTeacherDocs(){
   const uid = USERS[currentUser]?.username;
@@ -1604,10 +1635,37 @@ function renderTeacherDashboard(){
   const doneCnt=EVALUATORS.filter(e=>evData[e]?.score!=null).length;
   document.getElementById('evStatusSummary').textContent=`ประเมินแล้ว ${doneCnt}/${EVALUATORS.length} ท่าน`;
   const evGrid=document.getElementById('evStatusGrid');
+
+  // การ์ดสรุปคะแนน (ใส่ต่อท้ายการ์ดผู้ประเมิน)
+  const activeEvs=activeEvaluators();
+  const scores=activeEvs.map(e=>evData[e]?.score).filter(s=>s!=null);
+  const avgScore=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*100)/100:null;
+  const g=avgScore!=null?getGrade(avgScore):null;
+  const isAllDone=doneCnt===EVALUATORS.length&&EVALUATORS.length>0;
+  const gradeGradients={
+    'g-ex':'linear-gradient(135deg,#7d5700,#d4a017,#b7770d)',
+    'g-vg':'linear-gradient(135deg,#0f3d26,#1a5c38,#2d8a5e)',
+    'g-gd':'linear-gradient(135deg,#1a3a6e,#1565c0,#2980b9)',
+    'g-av':'linear-gradient(135deg,#7a3800,#e65100,#f39c12)',
+    'g-fl':'linear-gradient(135deg,#4a0000,#c0392b,#e74c3c)',
+  };
+  const summaryCard = `
+    <div style="background:${scores.length>0&&g?gradeGradients[g.cls]:'linear-gradient(135deg,#4a5568,#718096,#a0aec0)'};border-radius:12px;padding:14px 16px;color:#fff;min-width:140px;flex:1;box-shadow:0 4px 16px rgba(0,0,0,.2);position:relative;overflow:hidden">
+      <div style="position:absolute;right:-10px;top:-10px;width:60px;height:60px;background:rgba(255,255,255,.1);border-radius:50%"></div>
+      <div style="font-size:11px;font-weight:700;opacity:.85;margin-bottom:6px">${isAllDone?'🏆 สรุปผลการประเมิน':scores.length>0?'📊 ผลเบื้องต้น':'⏳ รอการประเมิน'}</div>
+      <div style="font-size:28px;font-weight:800;line-height:1;letter-spacing:-0.5px">${avgScore!=null?avgScore.toFixed(2):'–'}</div>
+      <div style="font-size:10px;opacity:.7;margin-bottom:6px">คะแนน (จาก 100)</div>
+      <div style="font-size:14px;font-weight:700">${g?g.sym+' '+g.label:'ยังไม่มีข้อมูล'}</div>
+      <div style="margin-top:8px;height:5px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden">
+        <div style="height:5px;width:${avgScore!=null?Math.min(avgScore,100):0}%;background:rgba(255,255,255,.8);border-radius:3px;transition:width .6s"></div>
+      </div>
+      <div style="font-size:10px;opacity:.65;margin-top:3px">${doneCnt}/${EVALUATORS.length} ท่านประเมินแล้ว</div>
+    </div>`;
+
   evGrid.innerHTML=EVALUATORS.map(e=>{
     const sc=evData[e]?.score;
     const done=sc!=null;
-    const g=done?getGrade(sc):null;
+    const gg=done?getGrade(sc):null;
     const scoreColor=done?getBarColor(sc):'var(--text3)';
     return `<div class="ev-status-card ${done?'done':'pending'}">
       <div class="ev-status-icon">${done?'✅':'⏳'}</div>
@@ -1615,11 +1673,11 @@ function renderTeacherDashboard(){
         <div class="ev-status-name">${esc(USERS[e].name)}</div>
         <div class="ev-status-role">${esc(USERS[e].role)}</div>
         <div class="ev-status-score" style="color:${scoreColor}">
-          ${done?`${sc.toFixed(2)} คะแนน &nbsp;<span class="grade-pill ${g.cls}" style="font-size:10px">${g.sym} ${g.label}</span>`:'ยังไม่ได้ประเมิน'}
+          ${done?`${sc.toFixed(2)} คะแนน &nbsp;<span class="grade-pill ${gg.cls}" style="font-size:10px">${gg.sym} ${gg.label}</span>`:'ยังไม่ได้ประเมิน'}
         </div>
       </div>
     </div>`;
-  }).join('');
+  }).join('')+summaryCard;
 
   // เอกสารล่าสุด
   const area=document.getElementById('tRecentDocs');
@@ -1629,13 +1687,13 @@ function renderTeacherDashboard(){
   }
   const sorted=allDocs.sort((a,b)=>(b.uploadedAt||0)-(a.uploadedAt||0)).slice(0,5);
   area.innerHTML=`<div class="tbl-wrap"><table class="tbl data-tbl">
-    <thead><tr><th>หัวข้อ</th><th>รายการเอกสาร</th><th>ไฟล์</th><th>วันที่</th></tr></thead>
+    <thead><tr><th>หัวข้อ</th><th>รายการเอกสาร</th><th>ลิงก์</th><th>วันที่</th></tr></thead>
     <tbody>${sorted.map(d=>{
       const cat=DOC_CATEGORIES.flatMap(c=>c.items).find(i=>i.id===d.itemId);
       return `<tr>
         <td><span class="badge-item">${cat?cat.code:''}</span>${cat?cat.name.substring(0,30):''}</td>
         <td>${esc(d.docName)}</td>
-        <td>${d.fileData?`<button class="file-link" style="background:none;border:none;cursor:pointer;padding:0" onclick='openFileBlob(${JSON.stringify(d.fileData)},${JSON.stringify(d.fileType||'')})'>📎 เปิดไฟล์</button>`:'<span style="color:var(--text3)">–</span>'}</td>
+        <td>${d.driveLink?`<a href="${esc(d.driveLink)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--blue)">🔗 เปิดไฟล์</a>`:'<span style="color:var(--text3)">–</span>'}</td>
         <td style="white-space:nowrap;font-size:12px">${d.uploadedAt?new Date(d.uploadedAt).toLocaleDateString('th-TH'):''}</td>
       </tr>`;
     }).join('')}</tbody>
@@ -1675,17 +1733,45 @@ function switchEvalTab(code){
   document.getElementById('etab-'+code)?.classList.add('active');
 }
 function renderEvalItem(item,docs,locked){
+  const itemStatuses = getItemStatuses();
+  const currentStatus = itemStatuses[String(item.id)] || '';
+  const statusCfg = {
+    'มีครบ':    {bg:'#e8f5ed',color:'#1a5c38',border:'#a8d9b8',icon:'✅'},
+    'ยังไม่ครบ':{bg:'#fff8e1',color:'#b7770d',border:'#f0c44a',icon:'⚠️'},
+    'ไม่มี':    {bg:'#f3f4f6',color:'#6b7280',border:'#d1d5db',icon:'❌'},
+  };
+  const sc = currentStatus && statusCfg[currentStatus] ? statusCfg[currentStatus] : null;
+  const statusBadgeHtml = sc
+    ? `<span id="stBadge_${item.id}" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${sc.bg};color:${sc.color};border:1px solid ${sc.border}">${sc.icon} ${currentStatus}</span>`
+    : `<span id="stBadge_${item.id}" style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb">— ยังไม่ระบุ</span>`;
+
+  // แถวสถานะ (radio buttons)
+  const statusRow = `<div style="display:flex;align-items:center;gap:10px;padding:10px 18px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap">
+    <span style="font-size:12px;color:var(--text2);font-weight:600;white-space:nowrap">📋 สถานะเอกสาร:</span>
+    ${['มีครบ','ยังไม่ครบ','ไม่มี'].map(s=>{
+      const checked = currentStatus===s ? 'checked' : '';
+      const cfg2 = statusCfg[s];
+      const sel = currentStatus===s;
+      return `<label style="display:inline-flex;align-items:center;gap:5px;cursor:${locked?'default':'pointer'};padding:5px 14px;border-radius:20px;border:1px solid ${sel?cfg2.border:'var(--border2)'};background:${sel?cfg2.bg:'var(--card-bg)'};font-size:12px;font-weight:${sel?'700':'400'};color:${sel?cfg2.color:'var(--text2)'};transition:all .15s">
+        <input type="radio" name="st_${item.id}" value="${s}" ${checked} ${locked?'disabled':''} onchange="saveItemStatusFn(${item.id},this.value)" style="accent-color:${cfg2.color};cursor:pointer"> ${cfg2.icon} ${s}
+      </label>`;
+    }).join('')}
+  </div>`;
+
   const rows=docs.length
     ?docs.map((d,i)=>{
       const editBtn = locked
         ? `<span style="font-size:11px;color:var(--text3);padding:4px 10px">🔒 ล็อค</span>`
-        : `<button class="btn-do btn-edit" style="font-size:11px;padding:4px 10px;color:var(--blue);border-color:var(--blue);margin-right:4px" onclick="editDocFile('${d._key}',${item.id})">✏️ แก้ไข PDF</button>
+        : `<button class="btn-do btn-edit" style="font-size:11px;padding:4px 10px;color:var(--blue);border-color:var(--blue);margin-right:4px" onclick="editDocLink('${d._key}',${item.id})">✏️ แก้ไขลิงก์</button>
            <button class="btn-do btn-edit" style="font-size:11px;padding:4px 10px;color:var(--red);border-color:var(--red)" onclick="deleteDocV('${d._key}')">🗑 ลบ</button>`;
+      const linkHtml = d.driveLink
+        ? `<a href="${esc(d.driveLink)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--blue);text-decoration:none;border:1px solid var(--blue);border-radius:5px;padding:3px 10px;white-space:nowrap">🔗 เปิดไฟล์</a>`
+        : `<span style="color:var(--text3);font-size:12px">–</span>`;
       return `<tr>
         <td style="text-align:center">${i+1}</td>
         <td>${esc(d.docName)}</td>
         <td>${d.docDetail?esc(d.docDetail):'–'}</td>
-        <td>${d.fileData?`<button class="file-link" style="background:none;border:none;cursor:pointer;padding:0" onclick='openFileBlob(${JSON.stringify(d.fileData)},"pdf")'><span class="file-tag file-tag-pdf">📄 PDF</span></button>`:'–'}</td>
+        <td>${linkHtml}</td>
         <td style="white-space:nowrap">${editBtn}</td>
       </tr>`;
     }).join('')
@@ -1713,12 +1799,8 @@ function renderEvalItem(item,docs,locked){
         </div>
         <div class="form-row" style="margin-top:8px">
           <div class="form-col flex-1">
-            <label class="form-lbl">แนบไฟล์ PDF <span style="color:var(--text3);font-weight:400">(ไม่เกิน 3 MB)</span></label>
-            <input type="file" class="fc fc-file" id="df_${item.id}" accept=".pdf,application/pdf">
-            <div class="upload-progress" id="up_${item.id}">
-              <div class="upload-bar-bg"><div class="upload-bar-fill" id="upfill_${item.id}"></div></div>
-              <div class="upload-status" id="upst_${item.id}">กำลังอัปโหลด...</div>
-            </div>
+            <label class="form-lbl">🔗 ลิงก์ Google Drive <span style="color:var(--text3);font-weight:400">(วางลิงก์แชร์จาก Google Drive)</span></label>
+            <input type="url" class="fc" id="df_${item.id}" placeholder="https://drive.google.com/file/d/...">
           </div>
           <div class="form-col" style="justify-content:flex-end">
             <button class="btn btn-green" onclick="addDoc(${item.id})">➕ เพิ่ม</button>
@@ -1731,14 +1813,16 @@ function renderEvalItem(item,docs,locked){
       <span>${item.code} ${item.name}</span>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="doc-badge">${docs.length} รายการ</span>
+        ${statusBadgeHtml}
         ${locked?`<span class="deadline-chip dl-chip-locked">🔒 ปิดรับแล้ว</span>`:''}
       </div>
     </div>
+    ${statusRow}
     <div class="eval-sec-body">
       ${addArea}
       <div class="doc-tbl-wrap" style="margin-top:12px">
         <table class="doc-tbl">
-          <thead><tr><th>#</th><th>ชื่อเอกสาร</th><th>รายละเอียด</th><th>ไฟล์</th><th>จัดการ</th></tr></thead>
+          <thead><tr><th>#</th><th>ชื่อเอกสาร</th><th>รายละเอียด</th><th>ลิงก์ไฟล์</th><th>จัดการ</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
@@ -1760,61 +1844,21 @@ function addDoc(itemId){
   }
   const nameEl=document.getElementById('dn_'+itemId);
   const detailEl=document.getElementById('dd_'+itemId);
-  const fileEl=document.getElementById('df_'+itemId);
+  const linkEl=document.getElementById('df_'+itemId);
   const docName=nameEl.value.trim();
   if(!docName){showToast('กรุณาระบุชื่อเอกสาร','t-red');return;}
+  const driveLink=linkEl.value.trim();
+  if(driveLink && !driveLink.startsWith('http')){
+    showToast('⚠️ ลิงก์ไม่ถูกต้อง กรุณาวางลิงก์ Google Drive ที่ถูกต้อง','t-red');return;
+  }
   const uid=USERS[currentUser].username;
   const teacherInfo=USERS[currentUser];
   const cat=DOC_CATEGORIES.flatMap(c=>c.items).find(i=>i.id===itemId);
-
-  const file=fileEl.files[0];
-  if(file){
-    // ตรวจสอบประเภทไฟล์ (PDF เท่านั้น)
-    if(file.type!=='application/pdf'&&!file.name.toLowerCase().endsWith('.pdf')){
-      showToast('⚠️ รองรับเฉพาะไฟล์ PDF เท่านั้น','t-red');
-      fileEl.value='';return;
-    }
-    // ⚠️ แจ้งเตือนไฟล์เกิน 3MB
-    const MAX_MB=3;
-    if(file.size > MAX_MB*1024*1024){
-      const sizeMB=(file.size/1024/1024).toFixed(2);
-      showToast(`⚠️ ไฟล์ขนาด ${sizeMB} MB เกินขีดจำกัด ${MAX_MB} MB กรุณาบีบอัดไฟล์ก่อน`,'t-red');
-      fileEl.value='';return;
-    }
-    const upProg=document.getElementById('up_'+itemId);
-    const upFill=document.getElementById('upfill_'+itemId);
-    const upSt=document.getElementById('upst_'+itemId);
-    upProg.style.display='block';
-    upFill.style.width='0%';
-    upSt.textContent='กำลังแปลงไฟล์...';
-    const ext='pdf';
-    const reader=new FileReader();
-    reader.onprogress=function(e){
-      if(e.lengthComputable){
-        const pct=Math.round(e.loaded/e.total*100);
-        upFill.style.width=pct+'%';
-        upSt.textContent=`กำลังแปลงไฟล์ ${pct}%`;
-      }
-    };
-    reader.onload=function(e){
-      upFill.style.width='100%';
-      upSt.textContent='กำลังบันทึก...';
-      const fileData=e.target.result;
-      saveDoc(uid,itemId,docName,detailEl.value.trim(),fileData,ext,cat,teacherInfo,upProg);
-      nameEl.value='';detailEl.value='';fileEl.value='';
-    };
-    reader.onerror=function(){
-      upProg.style.display='none';
-      showToast('แปลงไฟล์ไม่สำเร็จ กรุณาลองใหม่','t-red');
-    };
-    reader.readAsDataURL(file);
-  } else {
-    saveDoc(uid,itemId,docName,detailEl.value.trim(),null,null,cat,teacherInfo,null);
-    nameEl.value='';detailEl.value='';
-  }
+  saveDoc(uid,itemId,docName,detailEl.value.trim(),driveLink||'',cat,teacherInfo);
+  nameEl.value='';detailEl.value='';linkEl.value='';
 }
-function saveDoc(uid,itemId,docName,docDetail,fileData,fileType,cat,teacherInfo,upProg){
-  const docObj={itemId,docName,docDetail:docDetail||'',fileData:fileData||'',fileType:fileType||'',uploadedAt:Date.now()};
+function saveDoc(uid,itemId,docName,docDetail,driveLink,cat,teacherInfo){
+  const docObj={itemId,docName,docDetail:docDetail||'',driveLink:driveLink||'',uploadedAt:Date.now()};
   const newKey='ls_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
   const allDocs=lsGet(LS_DOCS)||{};
   if(!allDocs[uid]) allDocs[uid]={};
@@ -1824,7 +1868,6 @@ function saveDoc(uid,itemId,docName,docDetail,fileData,fileType,cat,teacherInfo,
   if(!teacherDocsData[uid]) teacherDocsData[uid]={};
   teacherDocsData[uid][newKey]=docObj;
   _notifyListeners(LS_DOCS);
-  if(upProg){ upProg.style.display='none'; }
   showToast('✅ เพิ่มเอกสารเรียบร้อย','t-green');
   renderEvaluation(activeEvalTab);
   sendNotification(teacherInfo.name,teacherInfo.teacherId,docName,cat?cat.name:'');
@@ -1860,20 +1903,32 @@ function renderViewDocs(){
   }
   area.innerHTML=DOC_CATEGORIES.map(cat=>{
     const catDocs=allDocs.filter(d=>cat.items.some(i=>i.id===d.itemId));
+    const itemStatuses=getItemStatuses();
+    const statusCfg={
+      'มีครบ':    {bg:'#e8f5ed',color:'#1a5c38',border:'#a8d9b8',icon:'✅'},
+      'ยังไม่ครบ':{bg:'#fff8e1',color:'#b7770d',border:'#f0c44a',icon:'⚠️'},
+      'ไม่มี':    {bg:'#f3f4f6',color:'#6b7280',border:'#d1d5db',icon:'❌'},
+    };
     return `<div class="card" style="margin-bottom:14px">
       <div class="card-head"><span>📂 ${cat.name}</span><span style="font-size:12px;color:var(--text2)">${catDocs.length} รายการ</span></div>
       ${cat.items.map(item=>{
         const itemDocs=allDocs.filter(d=>d.itemId===item.id);
-        if(!itemDocs.length) return `<div style="padding:8px 18px;font-size:12px;color:var(--text3);border-bottom:1px solid var(--border)">${item.code} ${item.name} — <em>ยังไม่มีเอกสาร</em></div>`;
-        return itemDocs.map(d=>`
-          <div style="padding:10px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;font-size:13px">
-            <span style="font-size:16px">${d.fileData?'📄':'📝'}</span>
+        const st=itemStatuses[String(item.id)]||'';
+        const sc=st&&statusCfg[st]?statusCfg[st]:null;
+        const stBadge=sc
+          ?`<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:${sc.bg};color:${sc.color};border:1px solid ${sc.border}">${sc.icon} ${st}</span>`
+          :`<span style="font-size:11px;color:var(--text3)">— ยังไม่ระบุ</span>`;
+        if(!itemDocs.length) return `<div style="padding:10px 18px;font-size:12px;color:var(--text3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <span>${item.code} ${item.name} — <em>ยังไม่มีเอกสาร</em></span>${stBadge}</div>`;
+        return itemDocs.map((d,idx)=>`
+          <div style="padding:10px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;font-size:13px;flex-wrap:wrap">
+            <span style="font-size:16px">${d.driveLink?'🔗':'📝'}</span>
             <div style="flex:1">
-              <div style="font-weight:600">${esc(d.docName)} <small style="font-weight:400;color:var(--text2)">${item.code} ${item.name}</small></div>
+              <div style="font-weight:600">${esc(d.docName)} <small style="font-weight:400;color:var(--text2)">${item.code} ${item.name}</small> ${idx===0?stBadge:''}</div>
               ${d.docDetail?`<div style="font-size:11px;color:var(--text2)">${esc(d.docDetail)}</div>`:''}
               <div style="font-size:11px;color:var(--text3)">${d.uploadedAt?new Date(d.uploadedAt).toLocaleString('th-TH'):''}</div>
             </div>
-            ${d.fileData?`<button class="file-link" style="background:none;border:1px solid var(--blue);border-radius:5px;color:var(--blue);cursor:pointer;padding:5px 12px;font-size:12px;font-family:'Sarabun',sans-serif;white-space:nowrap" onclick='openFileBlob(${JSON.stringify(d.fileData)},"pdf")'>👁 ดู PDF</button>`:''}
+            ${d.driveLink?`<a href="${esc(d.driveLink)}" target="_blank" rel="noopener" style="border:1px solid var(--blue);border-radius:5px;color:var(--blue);padding:5px 12px;font-size:12px;font-family:'Sarabun',sans-serif;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:4px">🔗 เปิดไฟล์</a>`:''}
           </div>`).join('');
       }).join('')}
     </div>`;
@@ -1891,40 +1946,24 @@ function deleteDocV(docKey){
   showToast('ลบเอกสารเรียบร้อย','t-green');
   renderEvaluation(activeEvalTab);
 }
-function editDocFile(docKey,itemId){
+function editDocLink(docKey,itemId){
   if(isSubmissionLocked()||isSubmissionBefore()){showToast('🔒 ปิดรับเอกสารแล้ว ไม่สามารถแก้ไขได้','t-red');return;}
-  // สร้าง input file ชั่วคราว
-  const inp=document.createElement('input');
-  inp.type='file';inp.accept='.pdf,application/pdf';
-  inp.onchange=function(){
-    const file=inp.files[0];
-    if(!file) return;
-    if(file.type!=='application/pdf'&&!file.name.toLowerCase().endsWith('.pdf')){
-      showToast('⚠️ รองรับเฉพาะไฟล์ PDF เท่านั้น','t-red');return;
+  const uid=USERS[currentUser].username;
+  const allDocs=lsGet(LS_DOCS)||{};
+  const currentLink=(allDocs[uid]&&allDocs[uid][docKey]?.driveLink)||'';
+  const newLink=(prompt('วางลิงก์ Google Drive ใหม่:',currentLink)||'').trim();
+  if(newLink===null||newLink===undefined) return;
+  if(newLink && !newLink.startsWith('http')){showToast('⚠️ ลิงก์ไม่ถูกต้อง','t-red');return;}
+  if(allDocs[uid]&&allDocs[uid][docKey]){
+    allDocs[uid][docKey].driveLink=newLink;
+    lsSet(LS_DOCS,allDocs);
+    if(teacherDocsData[uid]&&teacherDocsData[uid][docKey]){
+      teacherDocsData[uid][docKey].driveLink=newLink;
     }
-    if(file.size>3*1024*1024){
-      showToast('⚠️ ไฟล์เกิน 3 MB กรุณาบีบอัดก่อน','t-red');return;
-    }
-    const reader=new FileReader();
-    reader.onload=function(e){
-      const uid=USERS[currentUser].username;
-      const allDocs=lsGet(LS_DOCS)||{};
-      if(allDocs[uid]&&allDocs[uid][docKey]){
-        allDocs[uid][docKey].fileData=e.target.result;
-        allDocs[uid][docKey].fileType='pdf';
-        lsSet(LS_DOCS,allDocs);
-        if(teacherDocsData[uid]&&teacherDocsData[uid][docKey]){
-          teacherDocsData[uid][docKey].fileData=e.target.result;
-          teacherDocsData[uid][docKey].fileType='pdf';
-        }
-        _notifyListeners(LS_DOCS);
-        showToast('✅ อัปเดตไฟล์ PDF เรียบร้อย','t-green');
-        renderEvaluation(activeEvalTab);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-  inp.click();
+    _notifyListeners(LS_DOCS);
+    showToast('✅ อัปเดตลิงก์เรียบร้อย','t-green');
+    renderEvaluation(activeEvalTab);
+  }
 }
 
 // ════ PROFILE ════
@@ -2038,7 +2077,17 @@ function loadTeacherDocsForModal(teacherKey){
   const allDocs_ls=lsGet(LS_DOCS)||{};
   const docs=allDocs_ls[teacherKey]||{};
   const allDocs=Object.values(docs);
-  if(!allDocs.length){
+
+  // โหลดสถานะหัวข้อของครูคนนี้
+  const allStatuses=lsGet(LS_ITEM_STATUS)||{};
+  const itemStatuses=allStatuses[teacherKey]||{};
+  const statusCfg={
+    'มีครบ':    {bg:'#e8f5ed',color:'#1a5c38',border:'#a8d9b8',icon:'✅'},
+    'ยังไม่ครบ':{bg:'#fff8e1',color:'#b7770d',border:'#f0c44a',icon:'⚠️'},
+    'ไม่มี':    {bg:'#f3f4f6',color:'#6b7280',border:'#d1d5db',icon:'❌'},
+  };
+
+  if(!allDocs.length && !Object.keys(itemStatuses).length){
     listEl.innerHTML='<div class="no-docs-note">📭 ครูยังไม่ได้อัปโหลดเอกสาร</div>';
     return;
   }
@@ -2046,21 +2095,32 @@ function loadTeacherDocsForModal(teacherKey){
   let html='';
   DOC_CATEGORIES.forEach(cat=>{
     const catDocs=allDocs.filter(d=>cat.items.some(i=>i.id===d.itemId));
-    if(!catDocs.length) return;
+    const catHasData=catDocs.length || cat.items.some(i=>itemStatuses[String(i.id)]);
+    if(!catHasData) return;
     html+=`<div style="margin-bottom:10px;font-size:12px;font-weight:700;color:var(--green-d);padding:4px 0;border-bottom:1px solid var(--border)">📂 ${cat.name}</div>`;
     cat.items.forEach(item=>{
       const itemDocs=catDocs.filter(d=>d.itemId===item.id);
-      if(!itemDocs.length) return;
+      const st=itemStatuses[String(item.id)]||'';
+      const sc=st&&statusCfg[st]?statusCfg[st]:null;
+      const stBadge=sc
+        ?`<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${sc.bg};color:${sc.color};border:1px solid ${sc.border}">${sc.icon} ${st}</span>`
+        :'';
+      if(!itemDocs.length){
+        if(st){
+          html+=`<div style="padding:6px 0 6px 8px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text3);border-bottom:1px solid var(--border)">
+            <span>${item.code} ${item.name}</span>${stBadge}<em>ไม่มีลิงก์แนบ</em></div>`;
+        }
+        return;
+      }
       itemDocs.forEach(d=>{
         html+=`<div class="doc-preview-item">
-          <span class="doc-preview-icon">${d.fileData?'📄':'📝'}</span>
+          <span class="doc-preview-icon">${d.driveLink?'🔗':'📝'}</span>
           <div class="doc-preview-info">
-            <div class="doc-preview-name">${esc(d.docName)} <small style="font-weight:400;color:var(--text3)">${item.code}</small></div>
+            <div class="doc-preview-name">${esc(d.docName)} <small style="font-weight:400;color:var(--text3)">${item.code}</small> ${stBadge}</div>
             ${d.docDetail?`<div class="doc-preview-detail">${esc(d.docDetail)}</div>`:''}
             <div style="font-size:10px;color:var(--text3)">${d.uploadedAt?new Date(d.uploadedAt).toLocaleDateString('th-TH'):''}</div>
           </div>
-          ${d.fileData?`<span class="file-tag file-tag-pdf" style="flex-shrink:0">PDF</span>`:''}
-          ${d.fileData?`<button class="doc-preview-link" style="background:none;border:1px solid var(--blue);border-radius:5px;color:var(--blue);cursor:pointer;padding:5px 12px;font-size:12px;font-family:'Sarabun',sans-serif;white-space:nowrap;flex-shrink:0" onclick='openFileBlob(${JSON.stringify(d.fileData)},"pdf")'>👁 ดู PDF</button>`:''}
+          ${d.driveLink?`<a href="${esc(d.driveLink)}" target="_blank" rel="noopener" class="doc-preview-link" style="background:none;border:1px solid var(--blue);border-radius:5px;color:var(--blue);padding:5px 12px;font-size:12px;font-family:'Sarabun',sans-serif;white-space:nowrap;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;gap:4px">🔗 เปิดไฟล์</a>`:''}
         </div>`;
       });
     });
@@ -2081,22 +2141,28 @@ function onLevelChange(el){
 function calcTotal(){
   const allItems=DOC_CATEGORIES.flatMap(cat=>cat.items);
   const maxTotal=allItems.reduce((s,it)=>s+(it.maxScore||4),0);
-  let total=0,allFilled=true;
+  let total=0,allFilled=true,anyFilled=false;
   allItems.forEach(item=>{
     const key='d'+item.id;
     const checked=document.querySelector(`input[name="lvl_${key}"]:checked`);
-    if(!checked){allFilled=false;return;}
-    total+=parseInt(checked.value)*(item.maxScore||4)/4;
+    if(!checked){allFilled=false;}
+    else{anyFilled=true;total+=parseInt(checked.value)*(item.maxScore||4)/4;}
   });
   const pct=maxTotal>0?Math.round(total/maxTotal*10000)/100:0;
   const t=Math.round(total*100)/100;
-  document.getElementById('mTotal').textContent=allFilled?t.toFixed(2)+' / '+maxTotal+' คะแนน ('+pct.toFixed(1)+'%)':'–';
   if(allFilled){
+    document.getElementById('mTotal').textContent='คะแนนที่ได้ '+t.toFixed(2)+' / คะแนนเต็ม '+maxTotal+' คะแนน คิดเป็นร้อยละ ('+pct.toFixed(1)+'%)';
     const grade=getGrade(pct);
     document.getElementById('mGrade').textContent=grade.sym+' '+grade.label;
     document.getElementById('mGrade').className='sum-grade '+grade.cls;
     document.getElementById('mGradeNote').textContent='('+pct.toFixed(1)+'%) '+grade.note;
+  } else if(anyFilled){
+    document.getElementById('mTotal').textContent='คะแนนที่ได้ '+t.toFixed(2)+' / คะแนนเต็ม '+maxTotal+' คะแนน (ยังเลือกไม่ครบทุกหัวข้อ)';
+    document.getElementById('mGrade').textContent='–';
+    document.getElementById('mGrade').className='sum-grade';
+    document.getElementById('mGradeNote').textContent='กรุณาเลือกระดับให้ครบทุกหัวข้อเพื่อดูผลระดับ';
   } else {
+    document.getElementById('mTotal').textContent='–';
     document.getElementById('mGrade').textContent='–';
     document.getElementById('mGrade').className='sum-grade';
     document.getElementById('mGradeNote').textContent='เลือกระดับให้ครบทุกหัวข้อเพื่อดูผล';
@@ -2439,7 +2505,7 @@ function applyQuickScore(targetPct){
   const realPct=maxTotal>0?Math.round(realRaw/maxTotal*10000)/100:0;
   const msg=document.getElementById('quickScoreMsg');
   msg.style.display='block';
-  msg.innerHTML=`✅ เฉลี่ยคะแนนแล้ว → ได้ <strong>${realRaw.toFixed(2)} / ${maxTotal} คะแนน (${realPct.toFixed(1)}%)</strong> (เป้าหมาย ${targetPct}%) &nbsp;|&nbsp; สามารถปรับแต่ละข้อเพิ่มเติมได้`;
+  msg.innerHTML=`✅ เฉลี่ยคะแนนแล้ว → <strong>คะแนนที่ได้ ${realRaw.toFixed(2)} / คะแนนเต็ม ${maxTotal} คะแนน คิดเป็นร้อยละ (${realPct.toFixed(1)}%)</strong> (เป้าหมาย ${targetPct}%) &nbsp;|&nbsp; สามารถปรับแต่ละข้อเพิ่มเติมได้`;
 }
 
 // ════ ADMIN MANAGE ════
@@ -2995,9 +3061,9 @@ function openHelp(type){
       </div>
       <div style="padding:20px 24px;display:flex;flex-direction:column;gap:16px">
         ${isTeacher?`
-        <div style="display:flex;gap:14px"><div style="width:32px;height:32px;background:#1a5c38;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">1</div><div><div style="font-weight:700;margin-bottom:4px">เพิ่มเอกสารประเมิน</div><div style="color:#6b7280;font-size:13px;line-height:1.7">กด <strong>เพิ่มเอกสารประเมิน</strong> → เลือกแท็บด้านที่ต้องการ → กรอกชื่อเอกสาร → แนบไฟล์ PDF/รูปภาพ → กด <strong>➕ เพิ่ม</strong></div></div></div>
-        <div style="display:flex;gap:14px"><div style="width:32px;height:32px;background:#1a5c38;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">2</div><div><div style="font-weight:700;margin-bottom:4px">ตรวจสอบสถานะผู้ประเมิน</div><div style="color:#6b7280;font-size:13px;line-height:1.7">หน้าหลักจะแสดง <strong>✅</strong> = ประเมินแล้ว / <strong>⏳</strong> = ยังรอการประเมิน พร้อมคะแนนและระดับ</div></div></div>
-        <div style="display:flex;gap:14px"><div style="width:32px;height:32px;background:#1a5c38;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">3</div><div><div style="font-weight:700;margin-bottom:4px">ข้อมูลเก็บบน Firebase</div><div style="color:#6b7280;font-size:13px;line-height:1.7">ข้อมูลทั้งหมดเก็บบน Cloud ไม่หายแม้ปิด browser และผู้ประเมินทุกคนเห็นข้อมูล Real-time</div></div></div>
+        <div style="display:flex;gap:14px"><div style="width:32px;height:32px;background:#1a5c38;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">1</div><div><div style="font-weight:700;margin-bottom:4px">เพิ่มเอกสารประเมิน</div><div style="color:#6b7280;font-size:13px;line-height:1.7">กด <strong>เพิ่มเอกสาร</strong> → เลือกแท็บด้านที่ต้องการ → กรอกชื่อเอกสาร → วาง <strong>ลิงก์ Google Drive</strong> → กด <strong>➕ เพิ่ม</strong></div></div></div>
+        <div style="display:flex;gap:14px"><div style="width:32px;height:32px;background:#1a5c38;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">2</div><div><div style="font-weight:700;margin-bottom:4px">ระบุสถานะเอกสารในแต่ละหัวข้อ</div><div style="color:#6b7280;font-size:13px;line-height:1.7">เลือก <strong>✅ มีครบ / ⚠️ ยังไม่ครบ / ❌ ไม่มี</strong> สำหรับแต่ละหัวข้อย่อย เพื่อให้ผู้ประเมินทราบสถานะ</div></div></div>
+        <div style="display:flex;gap:14px"><div style="width:32px;height:32px;background:#1a5c38;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">3</div><div><div style="font-weight:700;margin-bottom:4px">ตรวจสอบสถานะผู้ประเมิน</div><div style="color:#6b7280;font-size:13px;line-height:1.7">หน้าหลักจะแสดง <strong>✅</strong> = ประเมินแล้ว / <strong>⏳</strong> = ยังรอการประเมิน พร้อมคะแนนและระดับ</div></div></div>
         <div style="background:#e8f5ed;border-radius:8px;padding:12px 16px;border-left:3px solid #1a5c38;font-size:13px;color:#1a5c38;line-height:1.7">💡 รหัสผ่านครู teacher01–teacher28: <strong>1234</strong></div>
         `:`
         <div style="display:flex;gap:14px"><div style="width:32px;height:32px;background:#1a5c38;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">1</div><div><div style="font-weight:700;margin-bottom:4px">การแจ้งเตือน</div><div style="color:#6b7280;font-size:13px;line-height:1.7">เมื่อครูอัปโหลดเอกสารใหม่ จะมีตัวเลขแจ้งเตือนที่ 🔔 <strong>การแจ้งเตือน</strong> กดดูได้เลย</div></div></div>
